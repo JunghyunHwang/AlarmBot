@@ -5,27 +5,17 @@ using System.Text;
 
 namespace AlarmBot
 {
-    public class ProductInfo
+    public sealed class ProductInfo
     {
         public readonly EBrand BrandName;
-        public readonly string TypeName;
-        public readonly string SneakersName;
-        public readonly uint Price;
         public readonly string Url;
-        public readonly DateTime StartTime;
-        public readonly DateTime EndTime;
-        public readonly string ImgUrl;
+        public readonly DateTime Date;
 
-        public ProductInfo(EBrand brandName, string typeName, string sneakersName, uint price, string url, DateTime startTime, DateTime endTime, string imgUrl)
+        public ProductInfo(EBrand brandName, string url, DateTime date)
         {
             BrandName = brandName;
-            TypeName = typeName;
-            SneakersName = sneakersName;
-            Price = price;
             Url = url;
-            StartTime = startTime;
-            EndTime = endTime;
-            ImgUrl = imgUrl;
+            Date = date;
         }
 
         public bool Equals(ProductInfo product)

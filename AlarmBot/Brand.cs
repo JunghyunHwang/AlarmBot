@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
 using System.Linq;
 using System.Text;
+using MySql.Data.MySqlClient;
 
 namespace AlarmBot
 {
@@ -10,19 +13,17 @@ namespace AlarmBot
         public readonly EBrand BrandName;
         public readonly string Url;
         protected List<ProductInfo> upcommingProducts;
+        protected static string connectionString = ConfigurationManager.ConnectionStrings["AlarmBot"].ConnectionString;
 
         public Brand(EBrand brandName, string url)
         {
-            BrandName = brandName; 
+            BrandName = brandName;
             Url = url;
             upcommingProducts = new List<ProductInfo>(32);
         }
 
-        public abstract int GetNewProduct();
+        public abstract Task CheckNewProduct();
 
-        public void LoadProductsFromDatabase()
-        {
-
-        }
+        public abstract void LoadProductsFromDatabase();
     }
 }
