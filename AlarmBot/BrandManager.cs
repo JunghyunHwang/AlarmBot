@@ -22,7 +22,7 @@ namespace AlarmBot
             }
         }
 
-        public static async void CheckNewProduct()
+        public static async Task CheckNewProduct()
         {
             foreach (var b in brands)
             {
