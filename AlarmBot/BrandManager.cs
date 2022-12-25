@@ -14,20 +14,16 @@ namespace AlarmBot
             brands.Add(brand);
         }
 
-        public static void LoadData()
+        public static async Task GetNewProduct()
         {
-            foreach (var b in brands)
-            {
-                b.LoadProductsFromDatabase();
-            }
-        }
+            List<ProductInfo> newProducts = new List<ProductInfo>(64);
 
-        public static async Task CheckNewProduct()
-        {
             foreach (var b in brands)
             {
-                await b.CheckNewProduct();
+                newProducts.AddRange(await b.GetNewProduct());
             }
+
+            DB.InsertProducts(newProducts);
         }
     }
 }

@@ -22,7 +22,7 @@ namespace AlarmBot
             Brand nike = new Nike(EBrand.Nike, "www.nike.com");
 
             BrandManager.AddBrand(nike);
-            await BrandManager.CheckNewProduct();
+            await BrandManager.GetNewProduct();
         }
     }
 }
