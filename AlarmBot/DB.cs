@@ -19,7 +19,7 @@ namespace AlarmBot
 
             using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
-                string query = $"SELECT * FROM draw_info WHERE brand_name={brand}";
+                string query = $"SELECT * FROM draw_info WHERE brand_name='{brand}'";
 
                 MySqlDataAdapter adapter = new MySqlDataAdapter(query, connection);
                 adapter.Fill(dataSet, "draw_alarm");
@@ -41,8 +41,8 @@ namespace AlarmBot
                 foreach (var p in products)
                 {
                     queryBuilder.Clear();
-                    queryBuilder.Append("INSERT INTO draw_info (brand_name, type_name, product_name, price, url, url_hash, draw_start_time, img_url)");
-                    queryBuilder.Append($"VALUES ({p.BrandName}, {p.TypeName}, {p.ProductName}, {p.Price}, {p.Url}, {p.UrlHash}, {p.StartTime}, {p.ImgUrl});");
+                    queryBuilder.Append("INSERT INTO draw_info (brand_name, type_name, product_name, price, url, url_hash, draw_start_time, img_url) ");
+                    queryBuilder.Append($"VALUES ('{p.BrandName}', '{p.TypeName}', '{p.ProductName}', '{p.Price}', '{p.Url}', '{p.UrlHash}', '{p.StartTime.ToString("yyyy-MM-dd hh:mm:ss")}', '{p.ImgUrl}');");
 
                     insertCommand.CommandText = queryBuilder.ToString();
                     insertCommand.ExecuteNonQuery();
@@ -61,7 +61,7 @@ namespace AlarmBot
 
                 foreach (var p in products)
                 {
-                    insertCommand.CommandText = $"DELETE FROM draw_info WHERE id={p.Url}";
+                    insertCommand.CommandText = $"DELETE FROM draw_info WHERE url='{p.Url}'";
                     insertCommand.ExecuteNonQuery();
                 }
             }

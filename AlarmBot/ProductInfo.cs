@@ -27,10 +27,5 @@ namespace AlarmBot
             StartTime = startTime;
             ImgUrl = imgUrl;
         }
-
-        public bool Equals(ProductInfo product)
-        {
-            return (UrlHash == product.UrlHash);
-        }
     }
 }
