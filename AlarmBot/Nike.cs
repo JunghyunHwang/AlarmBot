@@ -28,7 +28,7 @@ namespace AlarmBot
 
         public override async Task<List<ProductInfo>> GetNewProduct()
         {
-            var response = await client.GetAsync("http://www.nike.com/kr/launch?s=upcoming");
+            var response = await client.GetAsync(Url);
             string content = await response.Content.ReadAsStringAsync();
 
             HtmlDocument doc = new HtmlDocument();

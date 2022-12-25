@@ -27,5 +27,24 @@ namespace AlarmBot
             StartTime = startTime;
             ImgUrl = imgUrl;
         }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            ProductInfo other = (ProductInfo)obj;
+
+            return (BrandName == other.BrandName
+                && TypeName == other.TypeName
+                && ProductName == other.ProductName
+                && Price == other.Price
+                && Url == other.Url
+                && UrlHash == other.UrlHash
+                && StartTime == other.StartTime
+                && ImgUrl == other.ImgUrl);
+        }
     }
 }
