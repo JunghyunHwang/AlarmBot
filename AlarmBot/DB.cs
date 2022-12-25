@@ -61,7 +61,7 @@ namespace AlarmBot
 
                 foreach (var p in products)
                 {
-                    insertCommand.CommandText = $"DELETE FROM draw_info WHERE id={p.ID}";
+                    insertCommand.CommandText = $"DELETE FROM draw_info WHERE id={p.Url}";
                     insertCommand.ExecuteNonQuery();
                 }
             }

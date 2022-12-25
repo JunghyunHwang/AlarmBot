@@ -7,7 +7,6 @@ namespace AlarmBot
 {
     public sealed class ProductInfo
     {
-        public readonly uint ID;
         public readonly EBrand BrandName;
         public readonly string TypeName;
         public readonly string ProductName;
@@ -17,9 +16,8 @@ namespace AlarmBot
         public readonly DateTime StartTime;
         public readonly string ImgUrl;
 
-        public ProductInfo(uint id, EBrand brandName, string typeName, string productName, uint price, string url, uint urlHash, DateTime startTime, string imgUrl)
+        public ProductInfo(EBrand brandName, string typeName, string productName, uint price, string url, uint urlHash, DateTime startTime, string imgUrl)
         {
-            ID = id;
             BrandName = brandName;
             TypeName = typeName;
             ProductName = productName;

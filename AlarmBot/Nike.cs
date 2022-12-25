@@ -75,7 +75,7 @@ namespace AlarmBot
                         continue;
                     }
 
-                    var newP = makeProductInfoByHTML(itemDoc, urlHash);
+                    var newP = makeProductInfoByHTML(itemDoc, urlBuilder.ToString(), urlHash);
                     Debug.Assert(newP != null);
 
                     newProduct.Add(newP);
@@ -85,22 +85,31 @@ namespace AlarmBot
             return newProduct;
         }
 
-        protected override ProductInfo makeProductInfoByHTML(HtmlDocument itemDoc, uint urlHash)
+        protected override ProductInfo makeProductInfoByHTML(HtmlDocument itemDoc, string url, uint urlHash)
         {
             var tagTypeName = itemDoc.DocumentNode.SelectSingleNode("//h1[@class=\"headline-5 pb3-sm\"]");
             var tagSneakersName = itemDoc.DocumentNode.SelectSingleNode("//h5[@class=\"headline-1 pb3-sm\"]");
             var tagPrice = itemDoc.DocumentNode.SelectSingleNode("//div[@class=\"headline-5 pb6-sm fs14-sm fs16-md\"]");
             var tagDate = itemDoc.DocumentNode.SelectSingleNode("//div[@class=\"available-date-component\"]");
+            var imgUrl = itemDoc.DocumentNode.SelectSingleNode("//div[@class=\"image-component\"]");
 
             Regex rxPrice = new Regex("\\d+");
-            Regex rxDate = new Regex("(\\d{1,2})\\/(\\d{1,2})");
-            Regex rxTime = new Regex("(\\d{1,2}:\\d{1,2})");
+            Regex rxDateTime = new Regex("(\\d{1,2})");
 
-            MatchCollection price = rxPrice.Matches(tagPrice.InnerText);
-            MatchCollection date = rxDate.Matches(tagDate.InnerText);
-            MatchCollection time = rxTime.Matches(tagDate.InnerText);
+            MatchCollection tempPrice = rxPrice.Matches(tagPrice.InnerText);
+            MatchCollection tempDateTime = rxDateTime.Matches(tagDate.InnerText);
 
-            return null;
+            string strPrice = tempPrice[0].Value + tempPrice[1].Value;
+            uint price = uint.Parse(strPrice);
+
+            int month = int.Parse(tempDateTime[0].Value);
+            int day = int.Parse(tempDateTime[1].Value);
+            int hours = int.Parse(tempDateTime[2].Value);
+            int minutes = int.Parse(tempDateTime[3].Value);
+
+            DateTime dateTime = new DateTime(DateTime.Now.Year, month, day, hours, minutes, 0);
+
+            return new ProductInfo(BrandName, tagTypeName.InnerText, tagSneakersName.InnerText, price, url, urlHash, dateTime, imgUrl.InnerText);
         }
     }
 }

@@ -34,7 +34,7 @@ namespace AlarmBot
                 var row = table.Rows[i];
                 DateTime date = new DateTime(((DateTime)row["draw_start_time"]).Year, ((DateTime)row["draw_start_time"]).Month, ((DateTime)row["draw_start_time"]).Day, ((DateTime)row["draw_start_time"]).Hour, ((DateTime)row["draw_start_time"]).Minute, ((DateTime)row["draw_start_time"]).Second);
 
-                ProductInfo product = new ProductInfo((uint)row["id"], BrandName, (string)row["type_name"], (string)row["product_name"], (uint)row["price"], (string)row["url"], (uint)row["url_hash"], date, (string)row["img_url"]);
+                ProductInfo product = new ProductInfo(BrandName, (string)row["type_name"], (string)row["product_name"], (uint)row["price"], (string)row["url"], (uint)row["url_hash"], date, (string)row["img_url"]);
 
                 products.Add(product);
             }
@@ -42,7 +42,7 @@ namespace AlarmBot
             return products;
         }
 
-        protected abstract ProductInfo makeProductInfoByHTML(HtmlDocument itemDoc, uint urlHash);
+        protected abstract ProductInfo makeProductInfoByHTML(HtmlDocument itemDoc, string url, uint urlHash);
 
         protected uint urlFNVHash(string url)
         {
