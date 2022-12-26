@@ -15,14 +15,14 @@ namespace AlarmBot
         static async Task Main(string[] args)
         {
             //await TestLoadDataFromDatabase();
-            TestDB();
+            //TestDB();
 
             Console.WriteLine("No prob");
         }
 
         private static async Task TestLoadDataFromDatabase()
         {
-            Brand nike = new Nike(EBrand.Nike, "www.nike.com");
+            Brand nike = new Nike(EBrand.Nike, "https://www.nike.com/kr/launch?s=upcoming");
 
             BrandManager.AddBrand(nike);
             await BrandManager.GetNewProduct();
@@ -41,8 +41,7 @@ namespace AlarmBot
 
             DB.InsertProducts(products);
 
-            Nike n = new Nike(EBrand.Nike, "https://www.nike.com/kr/launch?s=upcoming");
-            var pros = n.GetProductsFromDatabase();
+            var pros = DB.GetProductsByBrandName(EBrand.Nike);
 
             Debug.Assert(pros.Count == 2);
             Debug.Assert(pros[0].Equals(p1));
@@ -50,7 +49,7 @@ namespace AlarmBot
 
             DB.DeleteProducts(products);
 
-            pros = n.GetProductsFromDatabase();
+            pros = DB.GetProductsByBrandName(EBrand.Nike);
             Debug.Assert(pros.Count == 0);
         }
     }

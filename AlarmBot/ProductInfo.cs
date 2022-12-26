@@ -30,7 +30,7 @@ namespace AlarmBot
 
         public override bool Equals(object? obj)
         {
-            if (obj == null || GetType() != obj.GetType())
+            if (obj == null || GetType() != obj.GetType() || GetHashCode() != obj.GetHashCode())
             {
                 return false;
             }
@@ -45,6 +45,22 @@ namespace AlarmBot
                 && UrlHash == other.UrlHash
                 && StartTime == other.StartTime
                 && ImgUrl == other.ImgUrl);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+
+            hash *= 31 + BrandName.GetHashCode();
+            hash *= 31 + TypeName.GetHashCode();
+            hash *= 31 + ProductName.GetHashCode();
+            hash *= 31 + (int)Price;
+            hash *= 31 + UrlHash.GetHashCode();
+            hash *= 31 + (int)UrlHash;
+            hash *= 31 + StartTime.GetHashCode();
+            hash *= 31 + ImgUrl.GetHashCode();
+
+            return hash;
         }
     }
 }

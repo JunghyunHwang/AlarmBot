@@ -20,27 +20,7 @@ namespace AlarmBot
             Url = url;
         }
 
-        public abstract Task<List<ProductInfo>> GetNewProduct();
-
-        public List<ProductInfo> GetProductsFromDatabase()
-        {
-            List<ProductInfo> products = new List<ProductInfo>(64);
-
-            DataSet data = DB.GetProducts(BrandName);
-            DataTable table = data.Tables[0];
-
-            for (int i = 0; i < table.Rows.Count; ++i)
-            {
-                var row = table.Rows[i];
-                DateTime date = new DateTime(((DateTime)row["draw_start_time"]).Year, ((DateTime)row["draw_start_time"]).Month, ((DateTime)row["draw_start_time"]).Day, ((DateTime)row["draw_start_time"]).Hour, ((DateTime)row["draw_start_time"]).Minute, ((DateTime)row["draw_start_time"]).Second);
-
-                ProductInfo product = new ProductInfo(BrandName, (string)row["type_name"], (string)row["product_name"], (uint)row["price"], (string)row["url"], (uint)row["url_hash"], date, (string)row["img_url"]);
-
-                products.Add(product);
-            }
-
-            return products;
-        }
+        public abstract Task<List<ProductInfo>> GetNewProduct(List<ProductInfo> existingProducts);
 
         protected abstract ProductInfo makeProductInfoByHTML(HtmlDocument itemDoc, string url, uint urlHash);
 

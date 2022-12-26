@@ -26,7 +26,7 @@ namespace AlarmBot
             client.DefaultRequestHeaders.Add("User-Agent", "Chrome/108.0.5359.124");
         }
 
-        public override async Task<List<ProductInfo>> GetNewProduct()
+        public override async Task<List<ProductInfo>> GetNewProduct(List<ProductInfo> existingProducts)
         {
             var response = await client.GetAsync(Url);
             string content = await response.Content.ReadAsStringAsync();
@@ -38,8 +38,7 @@ namespace AlarmBot
             Debug.Assert(list.Count % 2 == 0);
 
             List<ProductInfo> newProduct = new List<ProductInfo>(32);
-            StringBuilder urlBuilder = new StringBuilder(128);
-            List<ProductInfo> products = GetProductsFromDatabase();
+            StringBuilder urlBuilder = new StringBuilder(256);
 
             for (int i = 0; i < list.Count / 2; ++i)
             {
@@ -61,9 +60,9 @@ namespace AlarmBot
                     uint urlHash = urlFNVHash(urlBuilder.ToString());
                     bool bIsNewProduct = true;
 
-                    foreach (var p in products)
+                    foreach (var p in existingProducts)
                     {
-                        if (p.UrlHash == urlHash)
+                        if (urlHash == p.UrlHash && urlBuilder.ToString() == p.Url)
                         {
                             bIsNewProduct = false;
                             break;

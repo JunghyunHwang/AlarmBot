@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 
@@ -20,10 +21,13 @@ namespace AlarmBot
 
             foreach (var b in brands)
             {
-                newProducts.AddRange(await b.GetNewProduct());
+                newProducts.AddRange(await b.GetNewProduct(DB.GetProductsByBrandName(b.BrandName)));
             }
 
-            DB.InsertProducts(newProducts);
+            if (newProducts.Count > 0)
+            {
+                DB.InsertProducts(newProducts);
+            }
         }
     }
 }
