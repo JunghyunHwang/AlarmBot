@@ -15,7 +15,7 @@ namespace AlarmBot
             brands.Add(brand);
         }
 
-        public static async Task GetNewProduct()
+        public static async Task CheckNewProduct()
         {
             List<ProductInfo> newProducts = new List<ProductInfo>(64);
 

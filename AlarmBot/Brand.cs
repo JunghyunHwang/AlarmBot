@@ -24,7 +24,7 @@ namespace AlarmBot
 
         protected abstract ProductInfo makeProductInfoByHTML(HtmlDocument itemDoc, string url, uint urlHash);
 
-        protected uint urlFNVHash(string url)
+        protected static uint urlFNVHash(string url)
         {
             const uint FNV_PRIME_32 = 16777619;
             uint hash = 2166136261U;
