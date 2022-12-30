@@ -16,8 +16,8 @@ namespace AlarmBot
 
         public static List<ProductInfo> GetProductsByBrandName(EBrand brandName)
         {
-            DataSet dataSet = new DataSet();
             List<ProductInfo> products = new List<ProductInfo>(64);
+            DataSet dataSet = new DataSet();
 
             using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
@@ -33,6 +33,38 @@ namespace AlarmBot
                     var row = table.Rows[i];
                     DateTime date = new DateTime(((DateTime)row["draw_start_time"]).Year, ((DateTime)row["draw_start_time"]).Month, ((DateTime)row["draw_start_time"]).Day, ((DateTime)row["draw_start_time"]).Hour, ((DateTime)row["draw_start_time"]).Minute, ((DateTime)row["draw_start_time"]).Second);
 
+                    products.Add(new ProductInfo(brandName, (string)row["type_name"], (string)row["product_name"], (uint)row["price"], (string)row["url"], (uint)row["url_hash"], date, (string)row["img_url"]));
+                }
+            }
+
+            return products;
+        }
+
+        public static List<ProductInfo> GetTodayDrawProducts()
+        {
+            List<ProductInfo> products = new List<ProductInfo>(64);
+            DataSet dataSet = new DataSet();
+
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+                string query = $"SELECT * FROM draw_info WHERE brand_name='{DateTime.Now.ToString("yyyy-MM-dd")}'";
+
+                MySqlDataAdapter adapter = new MySqlDataAdapter(query, connection);
+                adapter.Fill(dataSet, "draw_alarm");
+
+                DataTable table = dataSet.Tables[0];
+
+                for (int i = 0; i < table.Rows.Count; ++i)
+                {
+                    var row = table.Rows[i];
+                    DateTime date = new DateTime(((DateTime)row["draw_start_time"]).Year, ((DateTime)row["draw_start_time"]).Month, ((DateTime)row["draw_start_time"]).Day, ((DateTime)row["draw_start_time"]).Hour, ((DateTime)row["draw_start_time"]).Minute, ((DateTime)row["draw_start_time"]).Second);
+                    EBrand brandName;
+
+                    if (!Enum.TryParse((string)row["brand_name"], out brandName))
+                    {
+                        Debug.Assert(false, "Wrong brand name");
+                    }
+                    
                     products.Add(new ProductInfo(brandName, (string)row["type_name"], (string)row["product_name"], (uint)row["price"], (string)row["url"], (uint)row["url_hash"], date, (string)row["img_url"]));
                 }
             }
