@@ -8,23 +8,31 @@ namespace AlarmBot
     {
         static void Main(string[] args)
         {
-            //Brand nike = new Nike(EBrand.Nike, "https://www.nike.com/kr/launch?s=upcoming");
-            //BrandManager.AddBrand(nike);
+            List<int> times = new List<int>(5);
 
-            //TestCheckNewDrawSpecificTime();
+            times.Add(1000);
+            times.Add(1000);
+            times.Add(1000);
 
-            string brand = "Nike";
-            EBrand nike;
-            Debug.Assert(Enum.TryParse(brand, out nike));
-
-            Console.WriteLine(nike.ToString());
+            foreach (var t in times)
+            {
+                TestSeveralTimer(t);
+            }
 
             Console.ReadLine();
         }
 
-        private static void TestCheckNewDrawSpecificTime()
+        public static void TestSeveralTimer(int time)
         {
-            
+            System.Timers.Timer timer = new System.Timers.Timer();
+
+            timer.Interval = time;
+            timer.Elapsed += (sender, e) => Print();
+        }
+
+        private static void Print()
+        {
+            Console.Write("Hi");
         }
     }
 }

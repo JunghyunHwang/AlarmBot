@@ -72,6 +72,32 @@ namespace AlarmBot
             return products;
         }
 
+        public static List<User> GetUsersByMessenger(EMessenger messenger)
+        {
+
+            List<User> users = new List<User>(128);
+            DataSet dataSet = new DataSet();
+
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+                string query = $"SELECT * FROM draw_info WHERE messenger='{messenger.ToString()}'";
+
+                MySqlDataAdapter adapter = new MySqlDataAdapter(query, connection);
+                adapter.Fill(dataSet, "draw_alarm");
+
+                DataTable table = dataSet.Tables[0];
+
+                for (int i = 0; i < table.Rows.Count; ++i)
+                {
+                    var row = table.Rows[i];
+
+                    users.Add(new User(messenger, (int)row["chat_id"]));
+                }
+            }
+
+            return users;
+        }
+
         public static void InsertProducts(List<ProductInfo> products)
         {
             if (products.Count == 0)

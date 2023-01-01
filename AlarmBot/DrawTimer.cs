@@ -13,31 +13,42 @@ namespace AlarmBot
     {
         private static readonly System.Timers.Timer NewProductTimer = new System.Timers.Timer();
         private static readonly System.Timers.Timer TodayDrawTimer = new System.Timers.Timer();
+        private static readonly List<Bot> bots = new List<Bot>(16);
 
-        private static readonly int CheckNewDrawHours = 21;
-        private static readonly int CheckTodayDrawHours = 7;
-        private static bool IsSetElapsedEventHandler = false;
+        public static int CheckNewDrawHours = 21;
+        public static int CheckTodayDrawHours = 7;
+        private static bool IsRunning = false;
 
         public static void StartTimer()
         {
+            if (IsRunning)
+            {
+                Debug.Assert(false, "Already running draw timer");
+                return;
+            }
+
             setTimerElapsedEventHandler();
+            setBots();
+
             startCheckNewProductTimer();
             startCheckTodayDrawTimer();
+
+            IsRunning = true;
         }
 
         private static void setTimerElapsedEventHandler()
         {
-            Debug.Assert(!IsSetElapsedEventHandler);
-
-            if (IsSetElapsedEventHandler)
-            {
-                return;
-            }
+            Debug.Assert(!IsRunning);
 
             NewProductTimer.Elapsed += async (sender, e) => await checkNewProducts();
             TodayDrawTimer.Elapsed += (sender, e) => setTodayNotification();
+        }
 
-            IsSetElapsedEventHandler = true;
+        private static void setBots()
+        {
+            Debug.Assert(!IsRunning);
+
+            bots.Add(new TelegramBot());
         }
 
         private static void startCheckNewProductTimer()
@@ -50,6 +61,7 @@ namespace AlarmBot
             }
 
             NewProductTimer.Interval = (double)(checkNewProductsTime - DateTime.Now).TotalMilliseconds;
+
             NewProductTimer.Start();
         }
 
@@ -77,6 +89,7 @@ namespace AlarmBot
             }
 
             TodayDrawTimer.Interval = (double)(checkTodayDrawTime - DateTime.Now).TotalMilliseconds;
+
             TodayDrawTimer.Start();
         }
 
@@ -86,7 +99,10 @@ namespace AlarmBot
 
             List<ProductInfo> todayDrawProducts = DB.GetTodayDrawProducts();
 
-            // Set notification with Bot class
+            foreach (var b in bots)
+            {
+                b.SetNotification(todayDrawProducts);
+            }
 
             startCheckTodayDrawTimer();
         }
