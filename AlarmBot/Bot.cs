@@ -6,6 +6,6 @@ namespace AlarmBot
 	{
         public abstract void SetNotification(List<ProductInfo> drawProducts);
 
-        public abstract void SendMessageToAllUsers(ProductInfo product);
+        protected abstract void SendMessageToAllUsers(ProductInfo product);
     }
 }

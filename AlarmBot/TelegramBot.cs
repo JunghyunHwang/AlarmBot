@@ -1,30 +1,48 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text;
 using System.Net;
+using System.Timers;
 using System.Configuration;
 
 namespace AlarmBot
 {
 	public sealed class TelegramBot : Bot
 	{
-        public static readonly string BOT_TOKEN = ConfigurationManager.ConnectionStrings["TelegramBotToken"].ConnectionString;
+        public static readonly string BOT_TOKEN = ConfigurationManager.AppSettings["TelegramBotToken"];
         private static readonly string API_URL = $"https://api.telegram.org/bot{BOT_TOKEN}";
+        private static readonly HttpClient client = new HttpClient();
+        private List<System.Timers.Timer> DrawNotificationTimers = new List<System.Timers.Timer>(8);
 
         public override void SetNotification(List<ProductInfo> drawProducts)
         {
-            
+            DrawNotificationTimers.Clear();
+
+            foreach (var product in drawProducts)
+            {
+                System.Timers.Timer drawTimer = new System.Timers.Timer();
+                
+                Debug.Assert(product.StartTime > DateTime.Now);
+                double remainingTime = (product.StartTime - DateTime.Now).TotalMilliseconds;
+
+                drawTimer.Interval = remainingTime;
+                drawTimer.Elapsed += (sender, e) => SendMessageToAllUsers(product);
+                drawTimer.Start();
+
+                DrawNotificationTimers.Add(drawTimer);
+            }
         }
 
-        public override void SendMessageToAllUsers(ProductInfo product)
+        protected override async void SendMessageToAllUsers(ProductInfo product)
         {
-            StringBuilder apiBuilder = new StringBuilder(256);
+            StringBuilder uriBuilder = new StringBuilder(256);
             List<User> users = DB.GetUsersByMessenger(EMessenger.Telegram);
 
             foreach(var u in users)
             {
-                apiBuilder.Clear();
+                uriBuilder.Clear();
 
-                apiBuilder.Append(API_URL)
+                uriBuilder.Append(API_URL)
                     .Append("/sendPhoto")
                     .Append($"?chat_id={u.ChatID}")
                     .Append($"&photo={product.ImgUrl}")
@@ -32,6 +50,7 @@ namespace AlarmBot
                     .Append($"\"{product.Url}\"")
                     .Append("}]]}");
 
+                await client.GetAsync(uriBuilder.ToString());
             }
         }
     }

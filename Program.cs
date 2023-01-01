@@ -8,31 +8,29 @@ namespace AlarmBot
     {
         static void Main(string[] args)
         {
-            List<int> times = new List<int>(5);
-
-            times.Add(1000);
-            times.Add(1000);
-            times.Add(1000);
-
-            foreach (var t in times)
-            {
-                TestSeveralTimer(t);
-            }
+            TestSendMessage();
 
             Console.ReadLine();
         }
 
-        public static void TestSeveralTimer(int time)
+        private static uint urlFNVHash(string url)
         {
-            System.Timers.Timer timer = new System.Timers.Timer();
+            const uint FNV_PRIME_32 = 16777619;
+            uint hash = 2166136261U;
 
-            timer.Interval = time;
-            timer.Elapsed += (sender, e) => Print();
+            for (int i = 0; i < url.Length; ++i)
+            {
+                hash *= FNV_PRIME_32;
+                hash ^= url[i];
+            }
+
+            return hash;
         }
 
-        private static void Print()
+        private static void TestSendMessage()
         {
-            Console.Write("Hi");
+            BrandManager.SetBrand();
+            DrawTimer.StartTimer();
         }
     }
 }

@@ -107,8 +107,9 @@ namespace AlarmBot
             int minutes = int.Parse(tempDateTime[3].Value);
 
             DateTime dateTime = new DateTime(DateTime.Now.Year, month, day, hours, minutes, 0);
+            DateOnly drawDate = DateOnly.FromDateTime(dateTime);
 
-            return new ProductInfo(BrandName, tagTypeName.InnerText, tagSneakersName.InnerText, price, url, urlHash, dateTime, imgUrl.InnerText);
+            return new ProductInfo(BrandName, tagTypeName.InnerText, tagSneakersName.InnerText, price, url, urlHash, drawDate, dateTime, imgUrl.InnerText);
         }
     }
 }
