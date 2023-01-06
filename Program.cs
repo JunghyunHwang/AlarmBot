@@ -13,20 +13,6 @@ namespace AlarmBot
             Console.ReadLine();
         }
 
-        private static uint urlFNVHash(string url)
-        {
-            const uint FNV_PRIME_32 = 16777619;
-            uint hash = 2166136261U;
-
-            for (int i = 0; i < url.Length; ++i)
-            {
-                hash *= FNV_PRIME_32;
-                hash ^= url[i];
-            }
-
-            return hash;
-        }
-
         private static void TestSendMessage()
         {
             BrandManager.SetBrand();

@@ -15,7 +15,7 @@ namespace AlarmBot
         private static readonly System.Timers.Timer todayDrawTimer = new System.Timers.Timer();
         private static readonly List<Bot> bots = new List<Bot>(16);
         private static readonly int checkNewDrawHours = 21;
-        private static readonly int checkTodayDrawHours = 1;
+        private static readonly int checkTodayDrawHours = 7;
         private static bool IsRunning = false;
 
         public static int StartTimer()
@@ -73,7 +73,7 @@ namespace AlarmBot
 
         private static void startCheckTodayDrawTimer()
         {
-            DateTime checkTodayDrawTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, checkTodayDrawHours, 38, 0);
+            DateTime checkTodayDrawTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, checkTodayDrawHours, 0, 0);
 
             if (DateTime.Now > checkTodayDrawTime)
             {
