@@ -55,5 +55,3 @@ namespace AlarmBot
         }
     }
 }
-
-// { "inline_keyboard": [[{ "text": "지금 응모하기", "url": "url" }]]}

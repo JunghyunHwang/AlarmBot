@@ -8,15 +8,16 @@ namespace AlarmBot
     {
         static void Main(string[] args)
         {
-            TestSendMessage();
-
-            Console.ReadLine();
-        }
-
-        private static void TestSendMessage()
-        {
-            BrandManager.SetBrand();
             DrawTimer.StartTimer();
+            bool bIsExit = true;
+
+            while (bIsExit)
+            {
+                if (Console.ReadLine() == "exit")
+                {
+                    bIsExit = false;
+                }
+            }
         }
     }
 }

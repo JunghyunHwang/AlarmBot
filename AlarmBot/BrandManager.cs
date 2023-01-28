@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+﻿using System.Diagnostics;
 
 namespace AlarmBot
 {
@@ -12,7 +7,12 @@ namespace AlarmBot
         private static readonly List<Brand> brands = new List<Brand>(8);
         public static bool IsSetBrand { get; private set; } = false;
 
-        public static int SetBrand()
+        static BrandManager()
+        {
+            SetBrand();
+        }
+
+        private static int SetBrand()
         {
             if (IsSetBrand)
             {

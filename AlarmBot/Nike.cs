@@ -1,13 +1,8 @@
 ﻿using HtmlAgilityPack;
-using MySql.Data.MySqlClient;
-using Org.BouncyCastle.Asn1.Crmf;
-using System.Data;
 using System.Diagnostics;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace AlarmBot
 {
