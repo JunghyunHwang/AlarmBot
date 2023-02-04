@@ -18,7 +18,7 @@ namespace AlarmBot
             client.BaseAddress = new Uri(BaseUrl);
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.DefaultRequestHeaders.Add("User-Agent", "Chrome/108.0.5359.124");
+            client.DefaultRequestHeaders.Add("User-Agent", "Chrome/109.0.0.0");
         }
 
         public override async Task<List<ProductInfo>> GetNewProduct(List<ProductInfo> existingProducts)
@@ -85,7 +85,16 @@ namespace AlarmBot
             var tagSneakersName = itemDoc.DocumentNode.SelectSingleNode("//h5[@class=\"headline-1 pb3-sm\"]");
             var tagPrice = itemDoc.DocumentNode.SelectSingleNode("//div[@class=\"headline-5 pb6-sm fs14-sm fs16-md\"]");
             var tagDate = itemDoc.DocumentNode.SelectSingleNode("//div[@class=\"available-date-component\"]");
-            var imgUrl = itemDoc.DocumentNode.SelectSingleNode("//div[@class=\"image-component\"]");
+            var meta = itemDoc.DocumentNode.SelectNodes("//meta");
+            string imgUrl = "";
+
+            for (int i = 0; i < meta.Count; ++i)
+            {
+                if (meta[i].Attributes[1].DeEntitizeValue == "og:image")
+                {
+                    imgUrl = meta[i].Attributes[2].DeEntitizeValue;
+                }
+            }
 
             Regex rxPrice = new Regex("\\d+");
             Regex rxDateTime = new Regex("(\\d{1,2})");
@@ -104,7 +113,7 @@ namespace AlarmBot
             DateTime dateTime = new DateTime(DateTime.Now.Year, month, day, hours, minutes, 0);
             DateOnly drawDate = DateOnly.FromDateTime(dateTime);
 
-            return new ProductInfo(BrandName, tagTypeName.InnerText, tagSneakersName.InnerText, price, url, urlHash, drawDate, dateTime, imgUrl.InnerText);
+            return new ProductInfo(BrandName, tagTypeName.InnerText, tagSneakersName.InnerText, price, url, urlHash, drawDate, dateTime, imgUrl);
         }
     }
 }

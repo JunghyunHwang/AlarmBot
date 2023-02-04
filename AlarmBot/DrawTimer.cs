@@ -8,8 +8,8 @@ namespace AlarmBot
         private static readonly System.Timers.Timer todayDrawTimer = new System.Timers.Timer();
         private static readonly List<Bot> bots = new List<Bot>(16);
 
-        private static readonly int HOURS_TO_CHECK_NEW_PRODUCTS = 01;
-        private static readonly int MINUTES_TO_CHECK_NEW_PRODUCTS = 47;
+        private static readonly int HOURS_TO_CHECK_NEW_PRODUCTS = 17;
+        private static readonly int MINUTES_TO_CHECK_NEW_PRODUCTS = 51;
 
         private static readonly int HOURS_TO_CHECK_TODAY_DRAW = 00;
         private static readonly int MINUTES_TO_CHECK_TODAY_DRAW = 5;
