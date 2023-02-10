@@ -7,12 +7,18 @@ using System.Configuration;
 
 namespace AlarmBot
 {
-	public sealed class TelegramBot : Bot
+	public sealed class Telegram : Messenger
 	{
         public static readonly string BOT_TOKEN = ConfigurationManager.AppSettings["TelegramBotToken"];
         private static readonly string API_URL = $"https://api.telegram.org/bot{BOT_TOKEN}";
         private static readonly HttpClient client = new HttpClient();
-        private List<System.Timers.Timer> DrawNotificationTimers = new List<System.Timers.Timer>(8);
+
+        private List<System.Timers.Timer> DrawNotificationTimers;
+
+        public Telegram()
+        {
+            DrawNotificationTimers = new List<System.Timers.Timer>();
+        }
 
         public override void SetNotification(List<ProductInfo> drawProducts)
         {
@@ -26,14 +32,14 @@ namespace AlarmBot
                 double remainingTime = (product.StartTime - DateTime.Now).TotalMilliseconds;
 
                 drawTimer.Interval = remainingTime;
-                drawTimer.Elapsed += (sender, e) => SendMessageToAllUsers(product);
+                drawTimer.Elapsed += (sender, e) => SendMessageToAllUsers(drawTimer, product);
                 drawTimer.Start();
 
                 DrawNotificationTimers.Add(drawTimer);
             }
         }
 
-        protected override async void SendMessageToAllUsers(ProductInfo product)
+        protected override async void SendMessageToAllUsers(System.Timers.Timer timer, ProductInfo product)
         {
             StringBuilder uriBuilder = new StringBuilder(256);
             List<User> users = DB.GetUsersByMessenger(EMessenger.Telegram);
@@ -52,6 +58,8 @@ namespace AlarmBot
 
                 await client.GetAsync(uriBuilder.ToString());
             }
+
+            DrawNotificationTimers.Remove(timer);
         }
     }
 }

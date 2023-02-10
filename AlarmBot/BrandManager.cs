@@ -34,7 +34,7 @@ namespace AlarmBot
 
             foreach (var b in brands)
             {
-                newProducts.AddRange(await b.GetNewProduct(DB.GetProductsByBrandName(b.BrandName)));
+                newProducts.AddRange(await b.GetNewProduct(Bot.getProductInfoByBrandName(b.BrandName)));
             }
 
             return newProducts;

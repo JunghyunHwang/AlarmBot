@@ -6,10 +6,10 @@ namespace AlarmBot
     {
         private static readonly System.Timers.Timer newProductTimer = new System.Timers.Timer();
         private static readonly System.Timers.Timer todayDrawTimer = new System.Timers.Timer();
-        private static readonly List<Bot> bots = new List<Bot>(16);
+        private static readonly List<Messenger> messengers = new List<Messenger>(16);
 
-        private static readonly int HOURS_TO_CHECK_NEW_PRODUCTS = 17;
-        private static readonly int MINUTES_TO_CHECK_NEW_PRODUCTS = 51;
+        private static readonly int HOURS_TO_CHECK_NEW_PRODUCTS = 21;
+        private static readonly int MINUTES_TO_CHECK_NEW_PRODUCTS = 22;
 
         private static readonly int HOURS_TO_CHECK_TODAY_DRAW = 00;
         private static readonly int MINUTES_TO_CHECK_TODAY_DRAW = 5;
@@ -29,8 +29,8 @@ namespace AlarmBot
                 return -1;
             }
 
+            setMessenger();
             setTimerElapsedEventHandler();
-            setMessengerBot();
 
             startCheckNewProductTimer();
             startCheckTodayDrawTimer();
@@ -38,6 +38,13 @@ namespace AlarmBot
             IsRunning = true;
 
             return 1;
+        }
+
+        private static void setMessenger()
+        {
+            Debug.Assert(!IsRunning);
+
+            messengers.Add(new Telegram());
         }
 
         private static void setTimerElapsedEventHandler()
@@ -48,15 +55,8 @@ namespace AlarmBot
             todayDrawTimer.Elapsed += (sender, e) => setTodayNotification();
         }
 
-        private static void setMessengerBot()
-        {
-            Debug.Assert(!IsRunning);
-            
-            bots.Add(new TelegramBot());
-        }
-
         private static void startCheckNewProductTimer()
-        {                                          
+        {
             DateTime checkNewProductsTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, HOURS_TO_CHECK_NEW_PRODUCTS, MINUTES_TO_CHECK_NEW_PRODUCTS, 0);
 
             if (DateTime.Now > checkNewProductsTime)
@@ -103,7 +103,7 @@ namespace AlarmBot
 
             List<ProductInfo> todayDrawProducts = DB.GetTodayDrawProducts();
 
-            foreach (var b in bots)
+            foreach (var b in messengers)
             {
                 b.SetNotification(todayDrawProducts);
             }
