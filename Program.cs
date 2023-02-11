@@ -8,7 +8,7 @@ namespace AlarmBot
     {
         static void Main(string[] args)
         {
-            DrawTimer.StartTimer();
+            Bot.Start();
             bool bIsExit = true;
 
             while (bIsExit)

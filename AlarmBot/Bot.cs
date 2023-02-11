@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace AlarmBot
 {
@@ -12,8 +13,8 @@ namespace AlarmBot
         private static readonly int NUMBER_OF_MESSENGERS = 8;
         private static readonly int A_DAY_MILLISECONDS = 86400000;
 
-        private static readonly int HOURS_TO_CHECK_NEW_PRODUCTS = 21;
-        private static readonly int MINUTES_TO_CHECK_NEW_PRODUCTS = 36;
+        private static readonly int HOURS_TO_CHECK_NEW_PRODUCTS = 10;
+        private static readonly int MINUTES_TO_CHECK_NEW_PRODUCTS = 41;
         private static readonly int HOURS_TO_CHECK_TODAY_DRAW = 00;
         private static readonly int MINUTES_TO_CHECK_TODAY_DRAW = 5;
 
@@ -73,9 +74,11 @@ namespace AlarmBot
 
             newProductTime.Interval = (checkNewProductsTime - DateTime.Now).TotalMilliseconds;
             newProductTime.Elapsed += (sender, e) => { NEW_PRODUCT_TIMER.Enabled = true; };
+            newProductTime.Enabled = true;
 
             todayDrawTime.Interval = (checkTodayDrawTime - DateTime.Now).TotalMilliseconds;
             todayDrawTime.Elapsed += (sender, e) => { TODAY_DRAW_TIMER.Enabled = true; };
+            todayDrawTime.Enabled = true;
         }
 
         private static async Task checkNewProducts()
