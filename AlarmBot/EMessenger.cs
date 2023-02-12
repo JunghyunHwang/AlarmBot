@@ -4,7 +4,8 @@ namespace AlarmBot
 {
 	public enum EMessenger
 	{
-		Telegram
+		Telegram,
+		Count
 	}
 }
 

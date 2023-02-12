@@ -122,14 +122,22 @@ namespace AlarmBot
                 }
             }
         }
+        public static void DeleteProduct(ProductInfo product)
+        {
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                MySqlCommand insertCommand = new MySqlCommand();
+                insertCommand.Connection = connection;
+
+                insertCommand.CommandText = $"DELETE FROM draw_info WHERE url='{product.Url}'";
+                insertCommand.ExecuteNonQuery();
+            }
+        }
 
         public static void DeleteProducts(List<ProductInfo> products)
         {
-            if (products.Count == 0)
-            {
-                return;
-            }
-
             using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 connection.Open();

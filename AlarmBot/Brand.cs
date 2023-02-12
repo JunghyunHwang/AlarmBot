@@ -14,13 +14,23 @@ namespace AlarmBot
         public readonly EBrand BrandName;
         public readonly string Url;
 
+        protected List<ProductInfo> products;
+
         public Brand(EBrand brandName, string url)
         {
             BrandName = brandName;
             Url = url;
+            products = new List<ProductInfo>();
         }
 
-        public abstract Task<List<ProductInfo>> GetNewProduct(List<ProductInfo> existingProducts);
+        public abstract Task<List<ProductInfo>> GetNewProduct();
+
+        public abstract void RemoveProduct(ProductInfo product);
+
+        public void LoadProductByDB()
+        {
+            products.AddRange(DB.GetProductsByBrandName(BrandName));
+        }
 
         protected abstract ProductInfo makeProductInfoByHTML(HtmlDocument itemDoc, string url, uint urlHash);
 

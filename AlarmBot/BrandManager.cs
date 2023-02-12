@@ -4,15 +4,15 @@ namespace AlarmBot
 {
     public static class BrandManager
     {
-        private static readonly List<Brand> brands = new List<Brand>(8);
+        private static readonly Dictionary<EBrand, Brand> brands = new Dictionary<EBrand, Brand>(8);
         public static bool IsSetBrand { get; private set; } = false;
 
         static BrandManager()
         {
-            SetBrand();
+            setBrand();
         }
 
-        private static int SetBrand()
+        private static int setBrand()
         {
             if (IsSetBrand)
             {
@@ -20,8 +20,13 @@ namespace AlarmBot
                 return -1;
             }
 
-            brands.Add(new Nike(EBrand.Nike, "https://www.nike.com/kr/launch?s=upcoming"));
+            brands.Add(EBrand.Nike, new Nike(EBrand.Nike, "https://www.nike.com/kr/launch?s=upcoming"));
             Debug.Assert(brands.Count == (int)EBrand.Count);
+
+            foreach (var b in brands.Values)
+            {
+                b.LoadProductByDB();
+            }
 
             IsSetBrand = true;
 
@@ -32,12 +37,17 @@ namespace AlarmBot
         {
             List<ProductInfo> newProducts = new List<ProductInfo>(64);
 
-            foreach (var b in brands)
+            foreach (var b in brands.Values)
             {
-                newProducts.AddRange(await b.GetNewProduct(Bot.getProductInfoByBrandName(b.BrandName)));
+                newProducts.AddRange(await b.GetNewProduct());
             }
 
             return newProducts;
+        }
+
+        public static void RemoveProduct(ProductInfo product)
+        {
+            brands[product.BrandName].RemoveProduct(product);
         }
     }
 }

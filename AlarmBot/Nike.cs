@@ -21,7 +21,12 @@ namespace AlarmBot
             client.DefaultRequestHeaders.Add("User-Agent", "Chrome/109.0.0.0");
         }
 
-        public override async Task<List<ProductInfo>> GetNewProduct(List<ProductInfo> existingProducts)
+        public override void RemoveProduct(ProductInfo product)
+        {
+            products.Remove(product);
+        }
+
+        public override async Task<List<ProductInfo>> GetNewProduct()
         {
             var response = await client.GetAsync(Url);
             string content = await response.Content.ReadAsStringAsync();
@@ -32,7 +37,7 @@ namespace AlarmBot
 
             Debug.Assert(list.Count % 2 == 0);
 
-            List<ProductInfo> newProduct = new List<ProductInfo>(32);
+            List<ProductInfo> newProducts = new List<ProductInfo>(32);
             StringBuilder urlBuilder = new StringBuilder(256);
 
             for (int i = 0; i < list.Count / 2; ++i)
@@ -55,7 +60,7 @@ namespace AlarmBot
                     uint urlHash = urlFNVHash(urlBuilder.ToString());
                     bool bIsNewProduct = true;
 
-                    foreach (var p in existingProducts)
+                    foreach (var p in products)
                     {
                         if (urlHash == p.UrlHash && urlBuilder.ToString() == p.Url)
                         {
@@ -69,14 +74,12 @@ namespace AlarmBot
                         continue;
                     }
 
-                    var newP = makeProductInfoByHTML(itemDoc, urlBuilder.ToString(), urlHash);
-                    Debug.Assert(newP != null);
-
-                    newProduct.Add(newP);
+                    newProducts.Add(makeProductInfoByHTML(itemDoc, urlBuilder.ToString(), urlHash));
                 }
             }
 
-            return newProduct;
+            products.AddRange(newProducts);
+            return newProducts;
         }
 
         protected override ProductInfo makeProductInfoByHTML(HtmlDocument itemDoc, string url, uint urlHash)
@@ -107,7 +110,7 @@ namespace AlarmBot
 
             int month = int.Parse(tempDateTime[0].Value);
             int day = int.Parse(tempDateTime[1].Value);
-            int hours = int.Parse(tempDateTime[2].Value);
+            int hours = int.Parse(tempDateTime[2].Value) + 9;
             int minutes = int.Parse(tempDateTime[3].Value);
 
             DateTime dateTime = new DateTime(DateTime.Now.Year, month, day, hours, minutes, 0);
