@@ -9,7 +9,7 @@ namespace AlarmBot
     {
         static void Main(string[] args)
         {
-            Bot.Start();
+            Bot.On();
             bool bIsExit = true;
 
             while (bIsExit)

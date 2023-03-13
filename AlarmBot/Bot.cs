@@ -8,34 +8,49 @@ namespace AlarmBot
 	{
         private static readonly System.Timers.Timer NEW_PRODUCT_TIMER;
         private static readonly System.Timers.Timer TODAY_DRAW_TIMER;
-        private static readonly List<Messenger> MESSENGERS;
 
-        private static readonly int NUMBER_OF_MESSENGERS = 8;
         private static readonly int A_DAY_MILLISECONDS = 86400000;
-
         private static readonly int HOURS_TO_CHECK_NEW_PRODUCTS = 21;
-        private static readonly int MINUTES_TO_CHECK_NEW_PRODUCTS = 55;
-        private static readonly int HOURS_TO_CHECK_TODAY_DRAW = 21;
-        private static readonly int MINUTES_TO_CHECK_TODAY_DRAW = 55;
+        private static readonly int MINUTES_TO_CHECK_NEW_PRODUCTS = 00;
+        private static readonly int HOURS_TO_CHECK_TODAY_DRAW = 07;
+        private static readonly int MINUTES_TO_CHECK_TODAY_DRAW = 00;
 
-        public static bool bIsRunning { get; private set; } = false;
+        public static bool IsRunning { get; private set; } = false;
 
         static Bot()
         {
             NEW_PRODUCT_TIMER = new System.Timers.Timer();
             TODAY_DRAW_TIMER = new System.Timers.Timer();
-            MESSENGERS = new List<Messenger>(NUMBER_OF_MESSENGERS);
         }
 
-        public static void Start()
+        public static bool On()
         {
-            Console.WriteLine("Start Alarm bot");
-            if (bIsRunning)
+            Debug.Assert(BrandManager.IsSetBrands);
+            Debug.Assert(MessengerManager.IsSetMessengers);
+
+            if (IsRunning)
             {
                 Debug.Assert(false, "Bot is Already running");
-                return;
+                return false;
             }
 
+            setTimer();
+            startAllTimers();
+
+            IsRunning = true;
+
+            return true;
+        }
+
+        public static void Off()
+        {
+            NEW_PRODUCT_TIMER.Enabled = false;
+            TODAY_DRAW_TIMER.Enabled = false;
+            IsRunning = false;
+        }
+
+        private static void setTimer()
+        {
             NEW_PRODUCT_TIMER.Interval = A_DAY_MILLISECONDS;
             NEW_PRODUCT_TIMER.Elapsed += async (sender, e) => await checkNewProducts();
             NEW_PRODUCT_TIMER.AutoReset = true;
@@ -43,18 +58,6 @@ namespace AlarmBot
             TODAY_DRAW_TIMER.Interval = A_DAY_MILLISECONDS;
             TODAY_DRAW_TIMER.Elapsed += (sender, e) => setTodayDrawNotification();
             TODAY_DRAW_TIMER.AutoReset = true;
-
-            setMessenger();
-            startAllTimers();
-
-            bIsRunning = true;
-        }
-
-        private static void setMessenger()
-        {
-            MESSENGERS.Add(new Telegram());
-
-            Debug.Assert(MESSENGERS.Count == (int)EMessenger.Count);
         }
 
         private static void startAllTimers()
@@ -89,10 +92,7 @@ namespace AlarmBot
 
         private static async Task checkNewProducts()
         {
-            Console.WriteLine("##### check new products #####");
             List<ProductInfo> newProducts = await BrandManager.CheckNewProducts();
-
-            Console.WriteLine($"new Products count: {newProducts.Count}");
 
             if (newProducts.Count > 0)
             {
@@ -102,7 +102,6 @@ namespace AlarmBot
 
         private static void setTodayDrawNotification()
         {
-            Console.WriteLine("##### set draw notification #####");
             List<ProductInfo> todayDrawProduct = DB.GetTodayDrawProducts();
 
             if (todayDrawProduct.Count == 0)
@@ -110,12 +109,7 @@ namespace AlarmBot
                 return;
             }
 
-            Console.WriteLine($"Today draw count: {todayDrawProduct.Count}");
-
-            foreach (var messenger in MESSENGERS)
-            {
-                messenger.SetNotification(todayDrawProduct);
-            }
+            MessengerManager.SetNotification(todayDrawProduct);
 
             DB.DeleteProducts(todayDrawProduct);
             

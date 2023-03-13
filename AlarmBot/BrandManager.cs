@@ -4,40 +4,40 @@ namespace AlarmBot
 {
     public static class BrandManager
     {
-        private static readonly Dictionary<EBrand, Brand> brands = new Dictionary<EBrand, Brand>(8);
-        public static bool IsSetBrand { get; private set; } = false;
+        private static readonly Dictionary<EBrand, Brand> BRANDS = new Dictionary<EBrand, Brand>((int)EBrand.Count);
+        public static bool IsSetBrands { get; private set; } = false;
 
         static BrandManager()
         {
-            setBrand();
+            setBrands();
         }
 
-        private static int setBrand()
+        private static bool setBrands()
         {
-            if (IsSetBrand)
+            if (IsSetBrands)
             {
                 Debug.Assert(false, "Already running program");
-                return -1;
+                return false;
             }
 
-            brands.Add(EBrand.Nike, new Nike(EBrand.Nike, "https://www.nike.com/kr/launch?s=upcoming"));
-            Debug.Assert(brands.Count == (int)EBrand.Count);
+            BRANDS.Add(EBrand.Nike, new Nike(EBrand.Nike, "https://www.nike.com/kr/launch?s=upcoming"));
+            Debug.Assert(BRANDS.Count == (int)EBrand.Count);
 
-            foreach (var b in brands.Values)
+            foreach (var b in BRANDS.Values)
             {
                 b.LoadProductByDB();
             }
 
-            IsSetBrand = true;
+            IsSetBrands = true;
 
-            return 1;
+            return true;
         }
 
         public static async Task<List<ProductInfo>> CheckNewProducts()
         {
             List<ProductInfo> newProducts = new List<ProductInfo>(64);
 
-            foreach (var b in brands.Values)
+            foreach (var b in BRANDS.Values)
             {
                 newProducts.AddRange(await b.GetNewProduct());
             }
@@ -47,7 +47,7 @@ namespace AlarmBot
 
         public static void RemoveProduct(ProductInfo product)
         {
-            brands[product.BrandName].RemoveProduct(product);
+            BRANDS[product.BrandName].RemoveProduct(product);
         }
     }
 }
