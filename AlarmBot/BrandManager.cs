@@ -4,8 +4,8 @@ namespace AlarmBot
 {
     public static class BrandManager
     {
-        private static readonly Dictionary<EBrand, Brand> BRANDS = new Dictionary<EBrand, Brand>((int)EBrand.Count);
-        public static bool IsSetBrands { get; private set; } = false;
+        static private readonly Dictionary<EBrand, Brand> BRANDS = new Dictionary<EBrand, Brand>((int)EBrand.Count);
+        static public bool IsSetBrands { get; private set; } = false;
 
         static BrandManager()
         {
