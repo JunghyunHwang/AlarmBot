@@ -9,35 +9,29 @@ namespace AlarmBot
 
         static BrandManager()
         {
-            setBrands();
-        }
-
-        private static bool setBrands()
-        {
             if (IsSetBrands)
             {
                 Debug.Assert(false, "Already running program");
-                return false;
+                return;
             }
 
+            // Set brands
             BRANDS.Add(EBrand.Nike, new Nike(EBrand.Nike, "https://www.nike.com/kr/launch?s=upcoming"));
             Debug.Assert(BRANDS.Count == (int)EBrand.Count);
 
-            foreach (var b in BRANDS.Values)
+            foreach (Brand b in BRANDS.Values)
             {
                 b.LoadProductByDB();
             }
 
             IsSetBrands = true;
-
-            return true;
         }
 
         public static async Task<List<ProductInfo>> CheckNewProducts()
         {
             List<ProductInfo> newProducts = new List<ProductInfo>(64);
 
-            foreach (var b in BRANDS.Values)
+            foreach (Brand b in BRANDS.Values)
             {
                 newProducts.AddRange(await b.GetNewProduct());
             }

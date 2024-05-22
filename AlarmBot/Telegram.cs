@@ -9,37 +9,32 @@ namespace AlarmBot
 {
 	public sealed class Telegram : Messenger
 	{
-        public static readonly string BOT_TOKEN = ConfigurationManager.AppSettings["TelegramBotToken"];
-        private static readonly string API_URL = $"https://api.telegram.org/bot{BOT_TOKEN}";
-        private static readonly HttpClient client = new HttpClient();
+        static public readonly string BOT_TOKEN = ConfigurationManager.AppSettings["TelegramBotToken"];
+        static private readonly string API_URL = $"https://api.telegram.org/bot{BOT_TOKEN}";
+        static private readonly HttpClient client = new HttpClient();
 
-        private List<System.Timers.Timer> DrawNotificationTimers;
-
-        public Telegram()
-        {
-            DrawNotificationTimers = new List<System.Timers.Timer>();
-        }
+        private readonly List<System.Timers.Timer> drawNotificationTimers = new List<System.Timers.Timer>();
 
         public override void SetNotification(List<ProductInfo> drawProducts)
         {
-            DrawNotificationTimers.Clear();
+            Debug.Assert(drawNotificationTimers.Count == 0);
 
-            foreach (var product in drawProducts)
+            foreach (ProductInfo product in drawProducts)
             {
-                System.Timers.Timer drawTimer = new System.Timers.Timer();
-                
                 Debug.Assert(product.StartTime > DateTime.Now);
+
+                System.Timers.Timer drawTimer = new System.Timers.Timer();
                 double remainingTime = (product.StartTime - DateTime.Now).TotalMilliseconds;
 
                 drawTimer.Interval = remainingTime;
-                drawTimer.Elapsed += (sender, e) => SendMessageToAllUsers(drawTimer, product);
+                drawTimer.Elapsed += (sender, e) => sendMessageToAllUsers(drawTimer, product);
                 drawTimer.Start();
 
-                DrawNotificationTimers.Add(drawTimer);
+                drawNotificationTimers.Add(drawTimer);
             }
         }
 
-        protected override async void SendMessageToAllUsers(System.Timers.Timer timer, ProductInfo product)
+        protected override async void sendMessageToAllUsers(System.Timers.Timer timer, ProductInfo product)
         {
             StringBuilder uriBuilder = new StringBuilder(256);
             List<User> users = DB.GetUsersByMessenger(EMessenger.Telegram);
@@ -59,7 +54,8 @@ namespace AlarmBot
                 await client.GetAsync(uriBuilder.ToString());
             }
 
-            DrawNotificationTimers.Remove(timer);
+            bool bHasTimer = drawNotificationTimers.Remove(timer);
+            Debug.Assert(bHasTimer);
         }
     }
 }

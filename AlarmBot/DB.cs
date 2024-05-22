@@ -8,7 +8,7 @@ namespace AlarmBot
 {
     public static class DB
     {
-        public static readonly string ConnectionString = ConfigurationManager.ConnectionStrings["AlarmBot"].ConnectionString;
+        static public readonly string ConnectionString = ConfigurationManager.ConnectionStrings["AlarmBot"].ConnectionString;
 
         public static List<ProductInfo> GetProductsByBrandName(EBrand brandName)
         {

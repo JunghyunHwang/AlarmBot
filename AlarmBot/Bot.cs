@@ -1,27 +1,19 @@
-﻿using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
 
 namespace AlarmBot
 {
 	public static class Bot
 	{
-        static private readonly System.Timers.Timer NEW_PRODUCT_TIMER;
-        static private readonly System.Timers.Timer TODAY_DRAW_TIMER;
-
         static private readonly int A_DAY_MILLISECONDS = 86400000;
         static private readonly int HOURS_TO_CHECK_NEW_PRODUCTS = 21;
         static private readonly int MINUTES_TO_CHECK_NEW_PRODUCTS = 00;
         static private readonly int HOURS_TO_CHECK_TODAY_DRAW = 07;
         static private readonly int MINUTES_TO_CHECK_TODAY_DRAW = 00;
 
-        public static bool IsRunning { get; private set; } = false;
+        static private readonly System.Timers.Timer NEW_PRODUCT_TIMER = new System.Timers.Timer();
+        static private readonly System.Timers.Timer TODAY_DRAW_TIMER = new System.Timers.Timer();
 
-        static Bot()
-        {
-            NEW_PRODUCT_TIMER = new System.Timers.Timer();
-            TODAY_DRAW_TIMER = new System.Timers.Timer();
-        }
+        public static bool IsRunning { get; private set; } = false;
 
         public static bool On()
         {
@@ -75,14 +67,14 @@ namespace AlarmBot
             }
 
             ignitionNewProduct.Interval = (newProductsTime - DateTime.Now).TotalMilliseconds;
-            ignitionNewProduct.Elapsed += (sender, e) => { NEW_PRODUCT_TIMER.Enabled = true; };
+            ignitionNewProduct.Elapsed += (sender, e) => { NEW_PRODUCT_TIMER.Start(); };
             ignitionNewProduct.Elapsed += async (sender, e) => { await checkNewProducts(); };
-            ignitionNewProduct.Enabled = true;
+            ignitionNewProduct.Start();
 
             ignitionTodayDraw.Interval = (todayDrawTime - DateTime.Now).TotalMilliseconds;
-            ignitionTodayDraw.Elapsed += (sender, e) => { TODAY_DRAW_TIMER.Enabled = true; };
+            ignitionTodayDraw.Elapsed += (sender, e) => { TODAY_DRAW_TIMER.Start(); };
             ignitionTodayDraw.Elapsed += (sender, e) => { setTodayDrawNotification(); };
-            ignitionTodayDraw.Enabled = true;
+            ignitionTodayDraw.Start();
         }
 
         private static async Task checkNewProducts()
@@ -97,7 +89,7 @@ namespace AlarmBot
 
         private static void setTodayDrawNotification()
         {
-            List<ProductInfo> todayDrawProduct = DB.GetTodayDrawProducts();
+            List<ProductInfo> todayDrawProduct = DB.GetTodayDrawProducts(); // Change draw products from DB to BrandManager
 
             if (todayDrawProduct.Count == 0)
             {
@@ -106,12 +98,12 @@ namespace AlarmBot
 
             MessengerManager.SetNotification(todayDrawProduct);
 
-            DB.DeleteProducts(todayDrawProduct);
-            
-            foreach (var p in todayDrawProduct)
+            foreach (ProductInfo p in todayDrawProduct)
             {
                 BrandManager.RemoveProduct(p);
             }
+
+            DB.DeleteProducts(todayDrawProduct);
         }
     }
 }

@@ -8,14 +8,12 @@ namespace AlarmBot
     {
         public readonly EBrand BrandName;
         public readonly string Url;
-
-        protected List<ProductInfo> products;
+        protected List<ProductInfo> products = new List<ProductInfo>(64);
 
         public Brand(EBrand brandName, string url)
         {
             BrandName = brandName;
             Url = url;
-            products = new List<ProductInfo>();
         }
 
         public abstract Task<List<ProductInfo>> GetNewProduct();

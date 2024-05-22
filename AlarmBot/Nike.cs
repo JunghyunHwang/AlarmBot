@@ -60,7 +60,7 @@ namespace AlarmBot
                     uint urlHash = urlFNVHash(urlBuilder.ToString());
                     bool bIsNewProduct = true;
 
-                    foreach (var p in products)
+                    foreach (ProductInfo p in products)
                     {
                         if (urlHash == p.UrlHash && urlBuilder.ToString() == p.Url)
                         {

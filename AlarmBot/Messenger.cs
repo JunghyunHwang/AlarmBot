@@ -6,6 +6,6 @@ namespace AlarmBot
 	{
         public abstract void SetNotification(List<ProductInfo> drawProducts);
 
-        protected abstract void SendMessageToAllUsers(System.Timers.Timer timer, ProductInfo product);
+        protected abstract void sendMessageToAllUsers(System.Timers.Timer timer, ProductInfo product);
     }
 }
