@@ -9,7 +9,7 @@ namespace AlarmBot
     public sealed class Nike : Brand
     {
         private readonly HttpClient client;
-        public static readonly string BaseUrl = "http://www.nike.com";
+        public static readonly string BaseUrl = "https://www.nike.com/kr/";
 
         public Nike(EBrand brand, string url)
             : base(brand, url)
@@ -28,7 +28,7 @@ namespace AlarmBot
 
         public override async Task<List<ProductInfo>> GetNewProduct()
         {
-            var response = await client.GetAsync(Url);
+            var response = await client.GetAsync(URL);
             string content = await response.Content.ReadAsStringAsync();
 
             HtmlDocument doc = new HtmlDocument();
