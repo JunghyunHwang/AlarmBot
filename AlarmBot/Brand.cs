@@ -8,7 +8,7 @@ namespace AlarmBot
     {
         public readonly EBrand BrandName;
         protected readonly string URL;
-        protected List<ProductInfo> products = new List<ProductInfo>(64);
+        protected Dictionary<string, ProductInfo> products = new Dictionary<string, ProductInfo>(64);
 
         public Brand(EBrand brandName, string url)
         {
@@ -22,23 +22,9 @@ namespace AlarmBot
 
         public void LoadProductByDB()
         {
-            products.AddRange(DB.GetProductsByBrandName(BrandName));
+            DB.GetProductsByBrandName(BrandName, products);
         }
 
-        protected abstract ProductInfo makeProductInfoByHTML(HtmlDocument itemDoc, string url, uint urlHash);
-
-        protected static uint urlFNVHash(string url)
-        {
-            const uint FNV_PRIME_32 = 16777619;
-            uint hash = 2166136261U;
-
-            for (int i = 0; i < url.Length; ++i)
-            {
-                hash *= FNV_PRIME_32;
-                hash ^= url[i];
-            }
-
-            return hash;
-        }
+        protected abstract ProductInfo makeProductInfoByHTML(HtmlDocument itemDoc, string url);
     }
 }

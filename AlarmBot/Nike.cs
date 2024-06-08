@@ -23,17 +23,17 @@ namespace AlarmBot
 
         public override void RemoveProduct(ProductInfo product)
         {
-            products.Remove(product);
+            products.Remove(product.Url);
         }
 
         public override async Task<List<ProductInfo>> GetNewProduct()
-        {
-            var response = await client.GetAsync(URL);
+         {
+            HttpResponseMessage response = await client.GetAsync(URL);
             string content = await response.Content.ReadAsStringAsync();
 
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(content);
-            var list = doc.DocumentNode.SelectNodes("//a[@class=\"card-link d-sm-b\"]");
+            HtmlNodeCollection list = doc.DocumentNode.SelectNodes("//a[@class=\"card-link d-sm-b\"]");
 
             Debug.Assert(list.Count % 2 == 0);
 
@@ -44,51 +44,41 @@ namespace AlarmBot
             {
                 int productLinkIndex = list[i].Attributes.Count - 1;
 
-                var res = await client.GetAsync(list[i].Attributes[productLinkIndex].Value);
+                HttpResponseMessage res = await client.GetAsync(list[i].Attributes[productLinkIndex].Value);
                 string itemHTML = await res.Content.ReadAsStringAsync();
 
                 HtmlDocument itemDoc = new HtmlDocument();
                 itemDoc.LoadHtml(itemHTML);
 
-                bool bIsDrawProduct = itemDoc.DocumentNode.SelectNodes("//br").Count == 4 ? true : false;
-
-                if (bIsDrawProduct)
+                if (itemDoc.DocumentNode.SelectNodes("//br").Count != 4)
                 {
-                    urlBuilder.Clear();
-                    urlBuilder.Append(BaseUrl).Append(list[i].Attributes[productLinkIndex].Value);
-
-                    uint urlHash = urlFNVHash(urlBuilder.ToString());
-                    bool bIsNewProduct = true;
-
-                    foreach (ProductInfo p in products)
-                    {
-                        if (urlHash == p.UrlHash && urlBuilder.ToString() == p.Url)
-                        {
-                            bIsNewProduct = false;
-                            break;
-                        }
-                    }
-
-                    if (!bIsNewProduct)
-                    {
-                        continue;
-                    }
-
-                    newProducts.Add(makeProductInfoByHTML(itemDoc, urlBuilder.ToString(), urlHash));
+                    // This is not draw product
+                    continue;
                 }
+
+                urlBuilder.Clear();
+                urlBuilder.Append(BaseUrl).Append(list[i].Attributes[productLinkIndex].Value);
+
+                if (!products.ContainsKey(urlBuilder.ToString()))
+                {
+                    continue;
+                }
+
+                ProductInfo p = makeProductInfoByHTML(itemDoc, urlBuilder.ToString());
+                products.Add(urlBuilder.ToString(), p);
+                newProducts.Add(p);
             }
 
-            products.AddRange(newProducts);
             return newProducts;
         }
 
-        protected override ProductInfo makeProductInfoByHTML(HtmlDocument itemDoc, string url, uint urlHash)
+        protected override ProductInfo makeProductInfoByHTML(HtmlDocument itemDoc, string url)
         {
-            var tagTypeName = itemDoc.DocumentNode.SelectSingleNode("//h1[@class=\"headline-5 pb3-sm\"]");
-            var tagSneakersName = itemDoc.DocumentNode.SelectSingleNode("//h5[@class=\"headline-1 pb3-sm\"]");
-            var tagPrice = itemDoc.DocumentNode.SelectSingleNode("//div[@class=\"headline-5 pb6-sm fs14-sm fs16-md\"]");
-            var tagDate = itemDoc.DocumentNode.SelectSingleNode("//div[@class=\"available-date-component\"]");
-            var meta = itemDoc.DocumentNode.SelectNodes("//meta");
+            HtmlNode tagTypeName = itemDoc.DocumentNode.SelectSingleNode("//h1[@class=\"headline-5 pb3-sm\"]");
+            HtmlNode tagSneakersName = itemDoc.DocumentNode.SelectSingleNode("//h5[@class=\"headline-1 pb3-sm\"]");
+            HtmlNode tagPrice = itemDoc.DocumentNode.SelectSingleNode("//div[@class=\"headline-5 pb6-sm fs14-sm fs16-md\"]");
+            HtmlNode tagDate = itemDoc.DocumentNode.SelectSingleNode("//div[@class=\"available-date-component\"]");
+            HtmlNodeCollection meta = itemDoc.DocumentNode.SelectNodes("//meta");
             string imgUrl = "";
 
             for (int i = 0; i < meta.Count; ++i)
@@ -116,7 +106,7 @@ namespace AlarmBot
             DateTime dateTime = new DateTime(DateTime.Now.Year, month, day, hours, minutes, 0);
             DateOnly drawDate = DateOnly.FromDateTime(dateTime);
 
-            return new ProductInfo(BrandName, tagTypeName.InnerText, tagSneakersName.InnerText, price, url, urlHash, drawDate, dateTime, imgUrl);
+            return new ProductInfo(BrandName, tagTypeName.InnerText, tagSneakersName.InnerText, price, url, drawDate, dateTime, imgUrl);
         }
     }
 }

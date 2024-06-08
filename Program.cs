@@ -7,8 +7,9 @@ namespace AlarmBot
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
+            /*
             Bot.On();
             bool bIsExit = true;
 
@@ -19,6 +20,14 @@ namespace AlarmBot
                     bIsExit = false;
                 }
             }
+            */
+            await testScraping();
+        }
+
+        private static async Task testScraping()
+        {
+            Brand brand = new Nike(EBrand.Nike, "https://www.nike.com/kr/launch?s=upcoming");
+            await brand.GetNewProduct();
         }
     }
 }

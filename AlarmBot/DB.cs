@@ -4,15 +4,18 @@ using System.Data;
 using System.Diagnostics;
 using System.Text;
 
+/* TODO
+  * Remove urlHash  
+*/
+
 namespace AlarmBot
 {
     public static class DB
     {
         static public readonly string ConnectionString = ConfigurationManager.ConnectionStrings["AlarmBot"].ConnectionString;
 
-        public static List<ProductInfo> GetProductsByBrandName(EBrand brandName)
+        public static void GetProductsByBrandName(EBrand brandName, Dictionary<string, ProductInfo> outProducts)
         {
-            List<ProductInfo> products = new List<ProductInfo>(64);
             DataSet dataSet = new DataSet();
 
             using (MySqlConnection connection = new MySqlConnection(ConnectionString))
@@ -26,15 +29,13 @@ namespace AlarmBot
 
                 for (int i = 0; i < table.Rows.Count; ++i)
                 {
-                    var row = table.Rows[i];
+                    DataRow row = table.Rows[i];
                     DateTime drawDateTime = new DateTime(((DateTime)row["draw_start_time"]).Year, ((DateTime)row["draw_start_time"]).Month, ((DateTime)row["draw_start_time"]).Day, ((DateTime)row["draw_start_time"]).Hour, ((DateTime)row["draw_start_time"]).Minute, ((DateTime)row["draw_start_time"]).Second);
                     DateOnly drawDate = DateOnly.FromDateTime(drawDateTime);
 
-                    products.Add(new ProductInfo(brandName, (string)row["type_name"], (string)row["product_name"], (uint)row["price"], (string)row["url"], (uint)row["url_hash"], drawDate, drawDateTime, (string)row["img_url"]));
+                    outProducts.Add((string)row["url"], new ProductInfo(brandName, (string)row["type_name"], (string)row["product_name"], (uint)row["price"], (string)row["url"], drawDate, drawDateTime, (string)row["img_url"]));
                 }
             }
-
-            return products;
         }
 
         public static List<ProductInfo> GetTodayDrawProducts()
@@ -63,7 +64,7 @@ namespace AlarmBot
                         Debug.Assert(false, "Wrong brand name");
                     }
                     
-                    products.Add(new ProductInfo(brandName, (string)row["type_name"], (string)row["product_name"], (uint)row["price"], (string)row["url"], (uint)row["url_hash"], drawDate, drawDateTime, (string)row["img_url"]));
+                    products.Add(new ProductInfo(brandName, (string)row["type_name"], (string)row["product_name"], (uint)row["price"], (string)row["url"], drawDate, drawDateTime, (string)row["img_url"]));
                 }
             }
 
@@ -114,8 +115,8 @@ namespace AlarmBot
                 foreach (var p in products)
                 {
                     queryBuilder.Clear();
-                    queryBuilder.Append("INSERT INTO draw_info (brand_name, type_name, product_name, price, url, url_hash, draw_date, draw_start_time, img_url) ");
-                    queryBuilder.Append($"VALUES ('{p.BrandName}', '{p.TypeName}', '{p.ProductName}', '{p.Price}', '{p.Url}', '{p.UrlHash}', '{p.DrawDate}', '{p.StartTime.ToString("yyyy-MM-dd hh:mm:ss")}', '{p.ImgUrl}');");
+                    queryBuilder.Append("INSERT INTO draw_info (brand_name, type_name, product_name, price, url, draw_date, draw_start_time, img_url) ");
+                    queryBuilder.Append($"VALUES ('{p.BrandName}', '{p.TypeName}', '{p.ProductName}', '{p.Price}', '{p.Url}', '{p.DrawDate}', '{p.StartTime.ToString("yyyy-MM-dd hh:mm:ss")}', '{p.ImgUrl}');");
 
                     insertCommand.CommandText = queryBuilder.ToString();
                     insertCommand.ExecuteNonQuery();
