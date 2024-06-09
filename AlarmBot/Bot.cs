@@ -15,15 +15,22 @@ namespace AlarmBot
 
         public static bool IsRunning { get; private set; } = false;
 
+        static private readonly Dictionary<EBrand, Brand> BRANDS = new Dictionary<EBrand, Brand>((int)EBrand.Count);
+
         public static bool On()
         {
-            Debug.Assert(BrandManager.IsSetBrands);
-            Debug.Assert(MessengerManager.IsSetMessengers);
-
             if (IsRunning)
             {
                 Debug.Assert(false, "Bot is Already running");
                 return false;
+            }
+
+            BRANDS.Add(EBrand.Nike, new Nike(EBrand.Nike, "https://www.nike.com/kr/launch?s=upcoming"));
+            Debug.Assert(BRANDS.Count == (int)EBrand.Count);
+
+            foreach (Brand b in BRANDS.Values)
+            {
+                b.LoadProductByDB();
             }
 
             // Set Timer
@@ -36,6 +43,11 @@ namespace AlarmBot
             TODAY_DRAW_TIMER.AutoReset = true;
 
             startAllTimers();
+            /*
+             * TODO
+                * remove product
+                * Add method that find today draw products
+            */
 
             IsRunning = true;
             return true;
@@ -43,6 +55,7 @@ namespace AlarmBot
 
         public static void Off()
         {
+            Debug.Assert(IsRunning, "Bot is not running");
             NEW_PRODUCT_TIMER.Enabled = false;
             TODAY_DRAW_TIMER.Enabled = false;
             IsRunning = false;
@@ -69,17 +82,24 @@ namespace AlarmBot
             ignitionNewProduct.Interval = (newProductsTime - DateTime.Now).TotalMilliseconds;
             ignitionNewProduct.Elapsed += (sender, e) => { NEW_PRODUCT_TIMER.Start(); };
             ignitionNewProduct.Elapsed += async (sender, e) => { await checkNewProducts(); };
+            ignitionNewProduct.AutoReset = false;
             ignitionNewProduct.Start();
 
             ignitionTodayDraw.Interval = (todayDrawTime - DateTime.Now).TotalMilliseconds;
             ignitionTodayDraw.Elapsed += (sender, e) => { TODAY_DRAW_TIMER.Start(); };
             ignitionTodayDraw.Elapsed += (sender, e) => { setTodayDrawNotification(); };
+            ignitionTodayDraw.AutoReset = false;
             ignitionTodayDraw.Start();
         }
 
         private static async Task checkNewProducts()
         {
-            List<ProductInfo> newProducts = await BrandManager.CheckNewProducts();
+            List<ProductInfo> newProducts = new List<ProductInfo>(64);
+
+            foreach (Brand b in BRANDS.Values)
+            {
+                newProducts.AddRange(await b.GetNewProduct());
+            }
 
             if (newProducts.Count > 0)
             {
@@ -91,19 +111,17 @@ namespace AlarmBot
         {
             List<ProductInfo> todayDrawProduct = DB.GetTodayDrawProducts(); // Change draw products from DB to BrandManager
 
-            if (todayDrawProduct.Count == 0)
+            if (todayDrawProduct.Count > 0)
             {
-                return;
+                MessengerManager.SetNotification(todayDrawProduct);
+
+                foreach (ProductInfo p in todayDrawProduct)
+                {
+                    BRANDS[p.BrandName].RemoveProduct(p);
+                }
+
+                DB.DeleteProducts(todayDrawProduct);
             }
-
-            MessengerManager.SetNotification(todayDrawProduct);
-
-            foreach (ProductInfo p in todayDrawProduct)
-            {
-                BrandManager.RemoveProduct(p);
-            }
-
-            DB.DeleteProducts(todayDrawProduct);
         }
     }
 }

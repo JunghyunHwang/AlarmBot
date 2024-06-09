@@ -99,11 +99,6 @@ namespace AlarmBot
 
         public static void InsertProducts(List<ProductInfo> products)
         {
-            if (products.Count == 0)
-            {
-                return;
-            }
-
             using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 connection.Open();

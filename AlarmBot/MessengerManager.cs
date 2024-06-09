@@ -11,12 +11,6 @@ namespace AlarmBot
 
         static MessengerManager()
         {
-            if (IsSetMessengers)
-            {
-                Debug.Assert(false, "Already set Messengers");
-                return;
-            }
-
             MESSENGERS.Add(EMessenger.Telegram, new Telegram());
             Debug.Assert(MESSENGERS.Count == (int)EMessenger.Count);
         }
