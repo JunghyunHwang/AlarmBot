@@ -1,7 +1,9 @@
-﻿using Org.BouncyCastle.Asn1.Sec;
+﻿using Org.BouncyCastle.Asn1.Crmf;
+using Org.BouncyCastle.Asn1.Sec;
 using System.Data;
 using System.Diagnostics;
 using System.Net;
+using System.Text.Json;
 
 namespace AlarmBot
 {
@@ -21,13 +23,25 @@ namespace AlarmBot
                 }
             }
             */
+
             await testScraping();
+            testDBInsert();
         }
 
         private static async Task testScraping()
         {
             Brand brand = new Nike(EBrand.Nike, "https://www.nike.com/kr/launch?s=upcoming");
             await brand.GetNewProduct();
+        }
+
+        private static void testDBInsert()
+        {
+            List<ProductInfo> list = new List<ProductInfo>
+            {
+                new ProductInfo(EBrand.Nike, "조던", "녹타", 1, "www.hello.com", DateOnly.FromDateTime(DateTime.Now), DateTime.Now, "이미지다~")
+            };
+
+            DB.InsertProducts(list);
         }
     }
 }

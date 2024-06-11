@@ -6,13 +6,15 @@ namespace AlarmBot
 {
     public static class MessengerManager
     {
-        static private readonly Dictionary<EMessenger, Messenger> MESSENGERS = new Dictionary<EMessenger, Messenger>((int)EMessenger.Count);
-        static public bool IsSetMessengers { get; private set; } = false;
+        private static readonly Dictionary<EMessenger, Messenger> MESSENGERS = new Dictionary<EMessenger, Messenger>((int)EMessenger.Count);
+        public static bool IsSetMessengers { get; private set; } = false;
 
         static MessengerManager()
         {
             MESSENGERS.Add(EMessenger.Telegram, new Telegram());
             Debug.Assert(MESSENGERS.Count == (int)EMessenger.Count);
+
+            IsSetMessengers = true;
         }
 
         public static void SetNotification(List<ProductInfo> todayDrawProduct)

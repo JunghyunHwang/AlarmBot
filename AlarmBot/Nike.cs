@@ -8,17 +8,17 @@ namespace AlarmBot
 {
     public sealed class Nike : Brand
     {
-        private readonly HttpClient client;
-        public static readonly string BaseUrl = "https://www.nike.com/kr/";
+        public static readonly string BASE_URL = "https://www.nike.com/kr/";
+        private readonly HttpClient mClient;
 
         public Nike(EBrand brand, string url)
             : base(brand, url)
         {
-            client = new HttpClient();
-            client.BaseAddress = new Uri(BaseUrl);
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.DefaultRequestHeaders.Add("User-Agent", "Chrome/109.0.0.0");
+            mClient = new HttpClient();
+            mClient.BaseAddress = new Uri(BASE_URL);
+            mClient.DefaultRequestHeaders.Accept.Clear();
+            mClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            mClient.DefaultRequestHeaders.Add("User-Agent", "Chrome/109.0.0.0");
         }
 
         public override void RemoveProduct(ProductInfo product)
@@ -28,7 +28,7 @@ namespace AlarmBot
 
         public override async Task<List<ProductInfo>> GetNewProduct()
          {
-            HttpResponseMessage response = await client.GetAsync(URL);
+            HttpResponseMessage response = await mClient.GetAsync(URL);
             string content = await response.Content.ReadAsStringAsync();
 
             HtmlDocument doc = new HtmlDocument();
@@ -44,7 +44,7 @@ namespace AlarmBot
             {
                 int productLinkIndex = list[i].Attributes.Count - 1;
 
-                HttpResponseMessage res = await client.GetAsync(list[i].Attributes[productLinkIndex].Value);
+                HttpResponseMessage res = await mClient.GetAsync(list[i].Attributes[productLinkIndex].Value);
                 string itemHTML = await res.Content.ReadAsStringAsync();
 
                 HtmlDocument itemDoc = new HtmlDocument();
@@ -57,7 +57,7 @@ namespace AlarmBot
                 }
 
                 urlBuilder.Clear();
-                urlBuilder.Append(BaseUrl).Append(list[i].Attributes[productLinkIndex].Value);
+                urlBuilder.Append(BASE_URL).Append(list[i].Attributes[productLinkIndex].Value);
 
                 if (!products.ContainsKey(urlBuilder.ToString()))
                 {

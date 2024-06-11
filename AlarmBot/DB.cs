@@ -10,15 +10,21 @@ using System.Text;
 
 namespace AlarmBot
 {
+    /*
+     * TODO
+     * Add dispose
+     */
+
     public static class DB
     {
-        static public readonly string ConnectionString = ConfigurationManager.ConnectionStrings["AlarmBot"].ConnectionString;
+        public static readonly string CONNECTION_STRING = ConfigurationManager.ConnectionStrings["AlarmBot"].ConnectionString;
+        private static readonly MySqlConnection CONNECTION = new MySqlConnection(CONNECTION_STRING);
 
         public static void GetProductsByBrandName(EBrand brandName, Dictionary<string, ProductInfo> outProducts)
         {
             DataSet dataSet = new DataSet();
 
-            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            using (MySqlConnection connection = new MySqlConnection(CONNECTION_STRING))
             {
                 string query = $"SELECT * FROM draw_info WHERE brand_name='{brandName}'";
 
@@ -43,7 +49,7 @@ namespace AlarmBot
             List<ProductInfo> products = new List<ProductInfo>(64);
             DataSet dataSet = new DataSet();
 
-            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            using (MySqlConnection connection = new MySqlConnection(CONNECTION_STRING))
             {
                 string query = $"SELECT * FROM draw_info WHERE draw_date='{DateTime.Now.ToString("yyyy-MM-dd")}'";
 
@@ -77,7 +83,7 @@ namespace AlarmBot
             List<User> users = new List<User>(128);
             DataSet dataSet = new DataSet();
 
-            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            using (MySqlConnection connection = new MySqlConnection(CONNECTION_STRING))
             {
                 string query = $"SELECT chat_id FROM users WHERE messenger='{messenger}'";
 
@@ -99,7 +105,7 @@ namespace AlarmBot
 
         public static void InsertProducts(List<ProductInfo> products)
         {
-            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            using (MySqlConnection connection = new MySqlConnection(CONNECTION_STRING))
             {
                 connection.Open();
 
@@ -120,7 +126,7 @@ namespace AlarmBot
         }
         public static void DeleteProduct(ProductInfo product)
         {
-            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            using (MySqlConnection connection = new MySqlConnection(CONNECTION_STRING))
             {
                 connection.Open();
 
@@ -134,7 +140,7 @@ namespace AlarmBot
 
         public static void DeleteProducts(List<ProductInfo> products)
         {
-            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            using (MySqlConnection connection = new MySqlConnection(CONNECTION_STRING))
             {
                 connection.Open();
 

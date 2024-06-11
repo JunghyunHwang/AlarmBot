@@ -2,23 +2,29 @@
 
 namespace AlarmBot
 {
-	public static class Bot
-	{
-        static private readonly int A_DAY_MILLISECONDS = 86400000;
-        static private readonly int HOURS_TO_CHECK_NEW_PRODUCTS = 21;
-        static private readonly int MINUTES_TO_CHECK_NEW_PRODUCTS = 00;
-        static private readonly int HOURS_TO_CHECK_TODAY_DRAW = 07;
-        static private readonly int MINUTES_TO_CHECK_TODAY_DRAW = 00;
+    /* TODO
+        * Remove product
+        * Add method that find today draw products
+    */
 
-        static private readonly System.Timers.Timer NEW_PRODUCT_TIMER = new System.Timers.Timer();
-        static private readonly System.Timers.Timer TODAY_DRAW_TIMER = new System.Timers.Timer();
+    public static class Bot
+	{
+        private static readonly int A_DAY_MILLISECONDS = 86400000;
+        private static readonly int HOURS_TO_CHECK_NEW_PRODUCTS = 21;
+        private static readonly int MINUTES_TO_CHECK_NEW_PRODUCTS = 00;
+        private static readonly int HOURS_TO_CHECK_TODAY_DRAW = 07;
+        private static readonly int MINUTES_TO_CHECK_TODAY_DRAW = 00;
+
+        private static readonly System.Timers.Timer NEW_PRODUCT_TIMER = new System.Timers.Timer();
+        private static readonly System.Timers.Timer TODAY_DRAW_TIMER = new System.Timers.Timer();
 
         public static bool IsRunning { get; private set; } = false;
 
-        static private readonly Dictionary<EBrand, Brand> BRANDS = new Dictionary<EBrand, Brand>((int)EBrand.Count);
+        private static readonly Dictionary<EBrand, Brand> BRANDS = new Dictionary<EBrand, Brand>((int)EBrand.Count);
 
         public static bool On()
         {
+            Debug.Assert(MessengerManager.IsSetMessengers, "MessengerManager is not set up");
             if (IsRunning)
             {
                 Debug.Assert(false, "Bot is Already running");
@@ -43,12 +49,7 @@ namespace AlarmBot
             TODAY_DRAW_TIMER.AutoReset = true;
 
             startAllTimers();
-            /*
-             * TODO
-                * remove product
-                * Add method that find today draw products
-            */
-
+            
             IsRunning = true;
             return true;
         }
