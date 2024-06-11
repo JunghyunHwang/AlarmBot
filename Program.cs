@@ -7,6 +7,13 @@ using System.Text.Json;
 
 namespace AlarmBot
 {
+    /*
+     * TODO
+     * Add IDisposable: DB.cs
+     * Remove product: Bot.cs
+     * Add method that find today draw products: Bot.cs
+     * Fix products Dictionary to PriorityQueue: Brands.cs
+     */
     internal class Program
     {
         static async Task Main(string[] args)
@@ -23,25 +30,12 @@ namespace AlarmBot
                 }
             }
             */
-
-            await testScraping();
-            testDBInsert();
         }
 
         private static async Task testScraping()
         {
             Brand brand = new Nike(EBrand.Nike, "https://www.nike.com/kr/launch?s=upcoming");
             await brand.GetNewProduct();
-        }
-
-        private static void testDBInsert()
-        {
-            List<ProductInfo> list = new List<ProductInfo>
-            {
-                new ProductInfo(EBrand.Nike, "조던", "녹타", 1, "www.hello.com", DateOnly.FromDateTime(DateTime.Now), DateTime.Now, "이미지다~")
-            };
-
-            DB.InsertProducts(list);
         }
     }
 }

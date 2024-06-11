@@ -10,13 +10,13 @@ namespace AlarmBot
         public readonly EBrand BrandName;
         public readonly string TypeName;
         public readonly string ProductName;
-        public readonly uint Price;
+        public readonly int Price;
         public readonly string Url;
         public readonly DateOnly DrawDate;
         public readonly DateTime StartTime;
         public readonly string ImgUrl;
 
-        public ProductInfo(EBrand brandName, string typeName, string productName, uint price, string url, DateOnly drawDate, DateTime startTime, string imgUrl)
+        public ProductInfo(EBrand brandName, string typeName, string productName, int price, string url, DateOnly drawDate, DateTime startTime, string imgUrl)
         {
             BrandName = brandName;
             TypeName = typeName;
@@ -54,7 +54,7 @@ namespace AlarmBot
             hash *= 31 + BrandName.GetHashCode();
             hash *= 31 + TypeName.GetHashCode();
             hash *= 31 + ProductName.GetHashCode();
-            hash *= 31 + (int)Price;
+            hash *= 31 + Price;
             hash *= 31 + DrawDate.GetHashCode();
             hash *= 31 + StartTime.GetHashCode();
             hash *= 31 + ImgUrl.GetHashCode();

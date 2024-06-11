@@ -96,7 +96,7 @@ namespace AlarmBot
             MatchCollection tempDateTime = rxDateTime.Matches(tagDate.InnerText);
 
             string strPrice = tempPrice[0].Value + tempPrice[1].Value;
-            uint price = uint.Parse(strPrice);
+            int price = int.Parse(strPrice);
 
             int month = int.Parse(tempDateTime[0].Value);
             int day = int.Parse(tempDateTime[1].Value);

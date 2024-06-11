@@ -2,11 +2,6 @@
 
 namespace AlarmBot
 {
-    /* TODO
-        * Remove product
-        * Add method that find today draw products
-    */
-
     public static class Bot
 	{
         private static readonly int A_DAY_MILLISECONDS = 86400000;
