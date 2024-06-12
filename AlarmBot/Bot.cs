@@ -31,7 +31,7 @@ namespace AlarmBot
 
             foreach (Brand b in BRANDS.Values)
             {
-                b.SetProducts(DB.GetProductsByBrandName(b.BrandName));
+                b.AddProducts(DB.GetProductsByBrandName(b.BrandName));
             }
 
             // Set Timer

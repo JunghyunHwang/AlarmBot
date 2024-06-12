@@ -17,55 +17,10 @@ namespace AlarmBot
     internal class Program
     {
         private static readonly Random random = new Random();
+
         static void Main(string[] args)
         {
-            DateOnly d1 = DateOnly.FromDateTime(DateTime.Now);
-            DateOnly d2 = DateOnly.FromDateTime(DateTime.Now);
-            DateOnly d3 = DateOnly.FromDateTime(DateTime.Now.AddDays(1));
-            DateOnly d4 = DateOnly.FromDateTime(DateTime.Now.AddDays(-1));
-
-            Debug.Assert(d1 == d2);
-            Debug.Assert(d1 < d3);
-            Debug.Assert(d1 > d4);
-        }
-
-        private static void GetSingleProductFromDB()
-        {
-            const int testCount = 10000;
-            long nanoPerTick = (1000L * 1000L * 1000L) / Stopwatch.Frequency; // 1틱에 몇 나노초
-            long numTicks = 0;
-            long maxTicks = 0;
-            long minTicks = Int64.MaxValue;
-
-            for (int i = 0; i < testCount; ++i)
-            {
-                Stopwatch timeGetFromDB = Stopwatch.StartNew();
-
-                var products = DB.GetProductsByBrandName(EBrand.Nike);
-
-                timeGetFromDB.Stop();
-
-                if (i == 0)
-                {
-                    continue;
-                }
-
-                if (maxTicks < timeGetFromDB.ElapsedTicks)
-                {
-                    maxTicks = timeGetFromDB.ElapsedTicks;
-                }
-                if (minTicks > timeGetFromDB.ElapsedTicks)
-                {
-                    minTicks = timeGetFromDB.ElapsedTicks;
-                }
-                numTicks += timeGetFromDB.ElapsedTicks;
-            }
-
-            Console.WriteLine("Get single products from DB");
-            Console.WriteLine($"  Slowest: {maxTicks} tick");
-            Console.WriteLine($"  Fastest: {minTicks} tick");
-            Console.WriteLine($"  Average: {numTicks / testCount} tick, {numTicks * nanoPerTick / testCount} nanoseconds");
-            Console.WriteLine();
+            GetTodayDrawProductsFromQueue();
         }
 
         private static void GetMultiProductsByBrandNameFromDB()
@@ -140,6 +95,48 @@ namespace AlarmBot
             }
 
             Console.WriteLine("Get today draw products from DB");
+            Console.WriteLine($"  Slowest: {maxTicks} tick");
+            Console.WriteLine($"  Fastest: {minTicks} tick");
+            Console.WriteLine($"  Average: {numTicks / testCount} tick, {numTicks * nanoPerTick / testCount} nanoseconds");
+            Console.WriteLine();
+        }
+
+        private static void GetTodayDrawProductsFromQueue()
+        {
+            Brand nike = new Nike(EBrand.Nike, "https://www.nike.com/kr/launch?s=upcoming");
+            nike.AddProducts(DB.GetProductsByBrandName(nike.BrandName));
+
+            const int testCount = 10000;
+            long nanoPerTick = (1000L * 1000L * 1000L) / Stopwatch.Frequency; // 1틱에 몇 나노초
+            long numTicks = 0;
+            long maxTicks = 0;
+            long minTicks = Int64.MaxValue;
+
+            for (int i = 0; i < testCount; ++i)
+            {
+                Stopwatch timeGetFromQueue = Stopwatch.StartNew();
+
+                var products = nike.GetTodayDrawProducts();
+
+                timeGetFromQueue.Stop();
+
+                if (i == 0)
+                {
+                    continue;
+                }
+
+                if (maxTicks < timeGetFromQueue.ElapsedTicks)
+                {
+                    maxTicks = timeGetFromQueue.ElapsedTicks;
+                }
+                if (minTicks > timeGetFromQueue.ElapsedTicks)
+                {
+                    minTicks = timeGetFromQueue.ElapsedTicks;
+                }
+                numTicks += timeGetFromQueue.ElapsedTicks;
+            }
+
+            Console.WriteLine("Get today draw products from Queue");
             Console.WriteLine($"  Slowest: {maxTicks} tick");
             Console.WriteLine($"  Fastest: {minTicks} tick");
             Console.WriteLine($"  Average: {numTicks / testCount} tick, {numTicks * nanoPerTick / testCount} nanoseconds");

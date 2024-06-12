@@ -21,15 +21,6 @@ namespace AlarmBot
             mClient.DefaultRequestHeaders.Add("User-Agent", "Chrome/109.0.0.0");
         }
 
-        public override void RemoveTodayDrawProducts()
-        {
-            DateOnly now = DateOnly.FromDateTime(DateTime.Now);
-            while (products.Peek().DrawDate <= now)
-            {
-
-            }
-        }
-
         public override async Task<List<ProductInfo>> GetNewProduct()
          {
             HttpResponseMessage response = await mClient.GetAsync(URL);
@@ -63,13 +54,14 @@ namespace AlarmBot
                 urlBuilder.Clear();
                 urlBuilder.Append(BASE_URL).Append(list[i].Attributes[productLinkIndex].Value);
 
-                if (!products.ContainsKey(urlBuilder.ToString()))
+                if (searchProducts.ContainsKey(urlBuilder.ToString()))
                 {
                     continue;
                 }
 
                 ProductInfo p = makeProductInfoByHTML(itemDoc, urlBuilder.ToString());
-                products.Add(urlBuilder.ToString(), p);
+
+                addProduct(p);
                 newProducts.Add(p);
             }
 
