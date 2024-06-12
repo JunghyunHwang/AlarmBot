@@ -8,7 +8,7 @@ namespace AlarmBot
     {
         public readonly EBrand BrandName;
         protected readonly string URL;
-        protected Dictionary<string, ProductInfo> products = new Dictionary<string, ProductInfo>(64);
+        protected PriorityQueue<ProductInfo, DateTime> products = new PriorityQueue<ProductInfo, DateTime>(64);
 
         public Brand(EBrand brandName, string url)
         {
@@ -18,11 +18,14 @@ namespace AlarmBot
 
         public abstract Task<List<ProductInfo>> GetNewProduct();
 
-        public abstract void RemoveProduct(ProductInfo product);
+        public abstract void RemoveTodayDrawProducts();
 
-        public void LoadProductByDB()
+        public void SetProducts(List<ProductInfo> lp)
         {
-            DB.GetProductsByBrandName(BrandName, products);
+            foreach (ProductInfo p in lp)
+            {
+                products.Enqueue(p, p.StartTime);
+            }
         }
 
         protected abstract ProductInfo makeProductInfoByHTML(HtmlDocument itemDoc, string url);

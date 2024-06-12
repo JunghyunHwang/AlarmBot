@@ -16,26 +16,160 @@ namespace AlarmBot
      */
     internal class Program
     {
-        static async Task Main(string[] args)
+        private static readonly Random random = new Random();
+        static void Main(string[] args)
         {
-            /*
-            Bot.On();
-            bool bIsExit = true;
+            DateOnly d1 = DateOnly.FromDateTime(DateTime.Now);
+            DateOnly d2 = DateOnly.FromDateTime(DateTime.Now);
+            DateOnly d3 = DateOnly.FromDateTime(DateTime.Now.AddDays(1));
+            DateOnly d4 = DateOnly.FromDateTime(DateTime.Now.AddDays(-1));
 
-            while (bIsExit)
-            {
-                if (Console.ReadLine() == "exit")
-                {
-                    bIsExit = false;
-                }
-            }
-            */
+            Debug.Assert(d1 == d2);
+            Debug.Assert(d1 < d3);
+            Debug.Assert(d1 > d4);
         }
 
-        private static async Task testScraping()
+        private static void GetSingleProductFromDB()
         {
-            Brand brand = new Nike(EBrand.Nike, "https://www.nike.com/kr/launch?s=upcoming");
-            await brand.GetNewProduct();
+            const int testCount = 10000;
+            long nanoPerTick = (1000L * 1000L * 1000L) / Stopwatch.Frequency; // 1틱에 몇 나노초
+            long numTicks = 0;
+            long maxTicks = 0;
+            long minTicks = Int64.MaxValue;
+
+            for (int i = 0; i < testCount; ++i)
+            {
+                Stopwatch timeGetFromDB = Stopwatch.StartNew();
+
+                var products = DB.GetProductsByBrandName(EBrand.Nike);
+
+                timeGetFromDB.Stop();
+
+                if (i == 0)
+                {
+                    continue;
+                }
+
+                if (maxTicks < timeGetFromDB.ElapsedTicks)
+                {
+                    maxTicks = timeGetFromDB.ElapsedTicks;
+                }
+                if (minTicks > timeGetFromDB.ElapsedTicks)
+                {
+                    minTicks = timeGetFromDB.ElapsedTicks;
+                }
+                numTicks += timeGetFromDB.ElapsedTicks;
+            }
+
+            Console.WriteLine("Get single products from DB");
+            Console.WriteLine($"  Slowest: {maxTicks} tick");
+            Console.WriteLine($"  Fastest: {minTicks} tick");
+            Console.WriteLine($"  Average: {numTicks / testCount} tick, {numTicks * nanoPerTick / testCount} nanoseconds");
+            Console.WriteLine();
+        }
+
+        private static void GetMultiProductsByBrandNameFromDB()
+        {
+            const int testCount = 10000;
+            long nanoPerTick = (1000L * 1000L * 1000L) / Stopwatch.Frequency; // 1틱에 몇 나노초
+            long numTicks = 0;
+            long maxTicks = 0;
+            long minTicks = Int64.MaxValue;
+            
+            for (int i = 0; i < testCount; ++i)
+            {
+                Stopwatch timeGetFromDB = Stopwatch.StartNew();
+
+                var products = DB.GetProductsByBrandName(EBrand.Nike);
+
+                timeGetFromDB.Stop();
+                
+                if (i == 0)
+                {
+                    continue;
+                }
+
+                if (maxTicks < timeGetFromDB.ElapsedTicks)
+                {
+                    maxTicks = timeGetFromDB.ElapsedTicks;
+                }
+                if (minTicks > timeGetFromDB.ElapsedTicks)
+                {
+                    minTicks = timeGetFromDB.ElapsedTicks;
+                }
+                numTicks += timeGetFromDB.ElapsedTicks;
+            }
+
+            Console.WriteLine("Get multi products by brand name from DB");
+            Console.WriteLine($"  Slowest: {maxTicks} tick");
+            Console.WriteLine($"  Fastest: {minTicks} tick");
+            Console.WriteLine($"  Average: {numTicks / testCount} tick, {numTicks * nanoPerTick / testCount} nanoseconds");
+            Console.WriteLine();
+        }
+
+        private static void GetTodayDrawProductsFromDB()
+        {
+            const int testCount = 10000;
+            long nanoPerTick = (1000L * 1000L * 1000L) / Stopwatch.Frequency; // 1틱에 몇 나노초
+            long numTicks = 0;
+            long maxTicks = 0;
+            long minTicks = Int64.MaxValue;
+
+            for (int i = 0; i < testCount; ++i)
+            {
+                Stopwatch timeGetFromDB = Stopwatch.StartNew();
+
+                var products = DB.GetTodayDrawProducts();
+
+                timeGetFromDB.Stop();
+
+                if (i == 0)
+                {
+                    continue;
+                }
+
+                if (maxTicks < timeGetFromDB.ElapsedTicks)
+                {
+                    maxTicks = timeGetFromDB.ElapsedTicks;
+                }
+                if (minTicks > timeGetFromDB.ElapsedTicks)
+                {
+                    minTicks = timeGetFromDB.ElapsedTicks;
+                }
+                numTicks += timeGetFromDB.ElapsedTicks;
+            }
+
+            Console.WriteLine("Get today draw products from DB");
+            Console.WriteLine($"  Slowest: {maxTicks} tick");
+            Console.WriteLine($"  Fastest: {minTicks} tick");
+            Console.WriteLine($"  Average: {numTicks / testCount} tick, {numTicks * nanoPerTick / testCount} nanoseconds");
+            Console.WriteLine();
+        }
+
+        private static void InsertData()
+        {
+            const int DATA_COUNT = 128;
+            List<ProductInfo> products = new List<ProductInfo>(DATA_COUNT);
+
+            for (int i = 0; i < DATA_COUNT; ++i)
+            {
+                DateTime dateTime = new DateTime(2024, 6, random.Next(12, 16), 10, 0, 0);
+                DateOnly onlyDate = DateOnly.FromDateTime(dateTime);
+
+                products.Add(
+                    new ProductInfo(
+                        EBrand.Nike,
+                        "test_type",
+                        "test_name",
+                        random.Next(10000, 1000001),
+                        $"url{i}",
+                        onlyDate,
+                        dateTime,
+                        $"img_url{i}"
+                        ));
+            }
+
+            DB.InsertProducts(products);
         }
     }
 }

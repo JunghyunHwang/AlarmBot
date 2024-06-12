@@ -31,7 +31,7 @@ namespace AlarmBot
 
             foreach (Brand b in BRANDS.Values)
             {
-                b.LoadProductByDB();
+                b.SetProducts(DB.GetProductsByBrandName(b.BrandName));
             }
 
             // Set Timer
@@ -113,7 +113,7 @@ namespace AlarmBot
 
                 foreach (ProductInfo p in todayDrawProduct)
                 {
-                    BRANDS[p.BrandName].RemoveProduct(p);
+                    BRANDS[p.BrandName].RemoveTodayDrawProducts();
                 }
 
                 DB.DeleteProducts(todayDrawProduct);

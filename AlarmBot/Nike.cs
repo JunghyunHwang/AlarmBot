@@ -21,9 +21,13 @@ namespace AlarmBot
             mClient.DefaultRequestHeaders.Add("User-Agent", "Chrome/109.0.0.0");
         }
 
-        public override void RemoveProduct(ProductInfo product)
+        public override void RemoveTodayDrawProducts()
         {
-            products.Remove(product.Url);
+            DateOnly now = DateOnly.FromDateTime(DateTime.Now);
+            while (products.Peek().DrawDate <= now)
+            {
+
+            }
         }
 
         public override async Task<List<ProductInfo>> GetNewProduct()

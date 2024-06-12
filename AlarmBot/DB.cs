@@ -8,7 +8,7 @@ namespace AlarmBot
 {
     public static class DB
     {
-        public static readonly string CONNECTION_STRING = ConfigurationManager.ConnectionStrings["AlarmBot"].ConnectionString;
+        private static readonly string CONNECTION_STRING = ConfigurationManager.ConnectionStrings["AlarmBot"].ConnectionString;
         private static readonly MySqlConnection CONNECTION = new MySqlConnection(CONNECTION_STRING);
 
         static DB()
@@ -16,8 +16,9 @@ namespace AlarmBot
             CONNECTION.Open();
         }
 
-        public static void GetProductsByBrandName(EBrand brandName, Dictionary<string, ProductInfo> outProducts)
+        public static List<ProductInfo> GetProductsByBrandName(EBrand brandName)
         {
+            List<ProductInfo> products = new List<ProductInfo>(64);
             DataSet dataSet = new DataSet();
 
             string query = $"SELECT * FROM products WHERE brand_name='{brandName}'";
@@ -33,8 +34,10 @@ namespace AlarmBot
                 DateTime drawDateTime = new DateTime(((DateTime)row["draw_start_time"]).Year, ((DateTime)row["draw_start_time"]).Month, ((DateTime)row["draw_start_time"]).Day, ((DateTime)row["draw_start_time"]).Hour, ((DateTime)row["draw_start_time"]).Minute, ((DateTime)row["draw_start_time"]).Second);
                 DateOnly drawDate = DateOnly.FromDateTime(drawDateTime);
 
-                outProducts.Add((string)row["url"], new ProductInfo(brandName, (string)row["type_name"], (string)row["product_name"], (int)row["price"], (string)row["url"], drawDate, drawDateTime, (string)row["img_url"]));
+                products.Add(new ProductInfo(brandName, (string)row["type_name"], (string)row["product_name"], (int)row["price"], (string)row["url"], drawDate, drawDateTime, (string)row["img_url"]));
             }
+
+            return products;
         }
 
         public static List<ProductInfo> GetTodayDrawProducts()
