@@ -10,10 +10,39 @@ namespace AlarmBot
     {
         private static readonly string CONNECTION_STRING = ConfigurationManager.ConnectionStrings["AlarmBot"].ConnectionString;
         private static readonly MySqlConnection CONNECTION = new MySqlConnection(CONNECTION_STRING);
+        private static readonly DataSet PRODUCTS = new DataSet();
 
         static DB()
         {
             CONNECTION.Open();
+            string query = "SELECT * FROM products";
+            MySqlDataAdapter adapter = new MySqlDataAdapter(query, CONNECTION);
+            adapter.Fill(PRODUCTS, "products");
+        }
+
+        public static List<ProductInfo> GetTodayProductsFromTable()
+        {
+            List<ProductInfo> result = new List<ProductInfo>(64);
+            DataTable dt = PRODUCTS.Tables[0];
+            DateOnly today = DateOnly.FromDateTime(DateTime.Now);
+
+            var list = dt.Select().Where(p => DateOnly.FromDateTime((DateTime)p.ItemArray[6]) == today);
+
+            foreach (DataRow row in list)
+            {
+                EBrand brandName;
+                if (!Enum.TryParse((string)row["brand_name"], out brandName))
+                {
+                    Debug.Assert(false, "Wrong brand name");
+                }
+
+                DateTime drawDateTime = (DateTime)row["draw_start_time"];
+                DateOnly drawDate = DateOnly.FromDateTime(drawDateTime);
+
+                result.Add(new ProductInfo(brandName, (string)row["type_name"], (string)row["product_name"], (int)row["price"], (string)row["url"], drawDate, drawDateTime, (string)row["img_url"]));
+            }
+
+            return result;
         }
 
         public static List<ProductInfo> GetProductsByBrandName(EBrand brandName)
@@ -31,7 +60,7 @@ namespace AlarmBot
             for (int i = 0; i < table.Rows.Count; ++i)
             {
                 DataRow row = table.Rows[i];
-                DateTime drawDateTime = new DateTime(((DateTime)row["draw_start_time"]).Year, ((DateTime)row["draw_start_time"]).Month, ((DateTime)row["draw_start_time"]).Day, ((DateTime)row["draw_start_time"]).Hour, ((DateTime)row["draw_start_time"]).Minute, ((DateTime)row["draw_start_time"]).Second);
+                DateTime drawDateTime = (DateTime)row["draw_start_time"];
                 DateOnly drawDate = DateOnly.FromDateTime(drawDateTime);
 
                 products.Add(new ProductInfo(brandName, (string)row["type_name"], (string)row["product_name"], (int)row["price"], (string)row["url"], drawDate, drawDateTime, (string)row["img_url"]));

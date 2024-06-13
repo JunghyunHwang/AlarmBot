@@ -28,6 +28,7 @@ namespace AlarmBot
 
                 drawTimer.Interval = remainingTime;
                 drawTimer.Elapsed += (sender, e) => sendMessageToAllUsers(drawTimer, product);
+                drawTimer.AutoReset = false;
                 drawTimer.Start();
 
                 drawNotificationTimers.Add(drawTimer);

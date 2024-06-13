@@ -1,9 +1,12 @@
-﻿using Org.BouncyCastle.Asn1.Crmf;
+﻿using MySql.Data.MySqlClient;
+using Org.BouncyCastle.Asn1.Crmf;
 using Org.BouncyCastle.Asn1.Sec;
+using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
+using ZstdSharp.Unsafe;
 
 namespace AlarmBot
 {
@@ -20,6 +23,8 @@ namespace AlarmBot
 
         static void Main(string[] args)
         {
+            GetTodayDrawProductsFromDB();
+            GetTodayDrawProductsFromDataTable();
             GetTodayDrawProductsFromQueue();
         }
 
@@ -107,7 +112,7 @@ namespace AlarmBot
             nike.AddProducts(DB.GetProductsByBrandName(nike.BrandName));
 
             const int testCount = 10000;
-            long nanoPerTick = (1000L * 1000L * 1000L) / Stopwatch.Frequency; // 1틱에 몇 나노초
+            long nanoPerTick = (1000L * 1000L * 1000L) / Stopwatch.Frequency;
             long numTicks = 0;
             long maxTicks = 0;
             long minTicks = Int64.MaxValue;
@@ -137,6 +142,45 @@ namespace AlarmBot
             }
 
             Console.WriteLine("Get today draw products from Queue");
+            Console.WriteLine($"  Slowest: {maxTicks} tick");
+            Console.WriteLine($"  Fastest: {minTicks} tick");
+            Console.WriteLine($"  Average: {numTicks / testCount} tick, {numTicks * nanoPerTick / testCount} nanoseconds");
+            Console.WriteLine();
+        }
+
+        private static void GetTodayDrawProductsFromDataTable()
+        {
+            const int testCount = 10000;
+            long nanoPerTick = (1000L * 1000L * 1000L) / Stopwatch.Frequency;
+            long numTicks = 0;
+            long maxTicks = 0;
+            long minTicks = Int64.MaxValue;
+
+            for (int i = 0; i < testCount; ++i)
+            {
+                Stopwatch timeGetFromQueue = Stopwatch.StartNew();
+
+                var products = DB.GetTodayProductsFromTable();
+
+                timeGetFromQueue.Stop();
+
+                if (i == 0)
+                {
+                    continue;
+                }
+
+                if (maxTicks < timeGetFromQueue.ElapsedTicks)
+                {
+                    maxTicks = timeGetFromQueue.ElapsedTicks;
+                }
+                if (minTicks > timeGetFromQueue.ElapsedTicks)
+                {
+                    minTicks = timeGetFromQueue.ElapsedTicks;
+                }
+                numTicks += timeGetFromQueue.ElapsedTicks;
+            }
+
+            Console.WriteLine("Get today draw products from Data Table");
             Console.WriteLine($"  Slowest: {maxTicks} tick");
             Console.WriteLine($"  Fastest: {minTicks} tick");
             Console.WriteLine($"  Average: {numTicks / testCount} tick, {numTicks * nanoPerTick / testCount} nanoseconds");
