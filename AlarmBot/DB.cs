@@ -22,7 +22,7 @@ namespace AlarmBot
 
         public static List<ProductInfo> GetTodayProductsFromTable()
         {
-            List<ProductInfo> result = new List<ProductInfo>(64);
+            List<ProductInfo> result = new List<ProductInfo>(Program.DATA_COUNT);
             DataTable dt = PRODUCTS.Tables[0];
             DateOnly today = DateOnly.FromDateTime(DateTime.Now);
 
@@ -47,7 +47,7 @@ namespace AlarmBot
 
         public static List<ProductInfo> GetProductsByBrandName(EBrand brandName)
         {
-            List<ProductInfo> products = new List<ProductInfo>(64);
+            List<ProductInfo> products = new List<ProductInfo>(Program.DATA_COUNT);
             DataSet dataSet = new DataSet();
 
             string query = $"SELECT * FROM products WHERE brand_name='{brandName}'";
@@ -71,7 +71,7 @@ namespace AlarmBot
 
         public static List<ProductInfo> GetTodayDrawProducts()
         {
-            List<ProductInfo> products = new List<ProductInfo>(64);
+            List<ProductInfo> products = new List<ProductInfo>(Program.DATA_COUNT);
             DataSet dataSet = new DataSet();
             string query = $"SELECT * FROM products WHERE draw_date='{DateTime.Now.ToString("yyyy-MM-dd")}'";
             MySqlDataAdapter adapter = new MySqlDataAdapter(query, CONNECTION);
