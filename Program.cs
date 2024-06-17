@@ -26,7 +26,8 @@ namespace AlarmBot
 
         static void Main(string[] args)
         {
-            PerformanceTest.StartTest();
+            InsertData();
+            //PerformanceTest.StartTest();
         }
 
         private static void InsertData()

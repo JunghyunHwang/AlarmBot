@@ -11,6 +11,8 @@ namespace AlarmBot
         private static readonly string CONNECTION_STRING = ConfigurationManager.ConnectionStrings["AlarmBot"].ConnectionString;
         private static readonly MySqlConnection CONNECTION = new MySqlConnection(CONNECTION_STRING);
         private static readonly DataSet PRODUCTS = new DataSet();
+        private static readonly DataSet DATA_SET = new DataSet();
+        private static readonly int DEFAULT_CAPACITY = 64;
 
         static DB()
         {
@@ -47,15 +49,14 @@ namespace AlarmBot
 
         public static List<ProductInfo> GetProductsByBrandName(EBrand brandName)
         {
+            DATA_SET.Clear();
             List<ProductInfo> products = new List<ProductInfo>(Program.DATA_COUNT);
-            DataSet dataSet = new DataSet();
-
             string query = $"SELECT * FROM products WHERE brand_name='{brandName}'";
-
             MySqlDataAdapter adapter = new MySqlDataAdapter(query, CONNECTION);
-            adapter.Fill(dataSet, "alarmbot");
 
-            DataTable table = dataSet.Tables[0];
+            adapter.Fill(DATA_SET, "alarmbot");
+
+            DataTable table = DATA_SET.Tables[0];
 
             for (int i = 0; i < table.Rows.Count; ++i)
             {
@@ -71,18 +72,18 @@ namespace AlarmBot
 
         public static List<ProductInfo> GetTodayDrawProducts()
         {
+            DATA_SET.Clear();
             List<ProductInfo> products = new List<ProductInfo>(Program.DATA_COUNT);
-            DataSet dataSet = new DataSet();
             string query = $"SELECT * FROM products WHERE draw_date='{DateTime.Now.ToString("yyyy-MM-dd")}'";
             MySqlDataAdapter adapter = new MySqlDataAdapter(query, CONNECTION);
 
-            adapter.Fill(dataSet, "alarmbot");
+            adapter.Fill(DATA_SET, "alarmbot");
 
-            DataTable table = dataSet.Tables[0];
+            DataTable table = DATA_SET.Tables[0];
 
             for (int i = 0; i < table.Rows.Count; ++i)
             {
-                var row = table.Rows[i];
+                DataRow row = table.Rows[i];
                 DateTime drawDateTime = new DateTime(((DateTime)row["draw_start_time"]).Year, ((DateTime)row["draw_start_time"]).Month, ((DateTime)row["draw_start_time"]).Day, ((DateTime)row["draw_start_time"]).Hour, ((DateTime)row["draw_start_time"]).Minute, ((DateTime)row["draw_start_time"]).Second);
                 DateOnly drawDate = DateOnly.FromDateTime(drawDateTime);
                 EBrand brandName;
@@ -93,6 +94,33 @@ namespace AlarmBot
                 }
 
                 products.Add(new ProductInfo(brandName, (string)row["type_name"], (string)row["product_name"], (int)row["price"], (string)row["url"], drawDate, drawDateTime, (string)row["img_url"]));
+            }
+
+            return products;
+        }
+
+        public static List<ProductInfo> GetProductsByDate(DateTime date)
+        {
+            List<ProductInfo> products = new List<ProductInfo>(Program.DATA_COUNT);
+            string query = $"SELECT * FROM products WHERE draw_date='{date.ToString("yyyy-MM-dd")}'";
+            MySqlDataAdapter adapter = new MySqlDataAdapter(query, CONNECTION);
+
+            adapter.Fill(DATA_SET, "alarmbot");
+
+            DataTable table = DATA_SET.Tables[0];
+
+            for (int i = 0; i < table.Rows.Count; ++i)
+            {
+                DataRow row = table.Rows[i];
+                DateOnly drawDate = DateOnly.FromDateTime(date);
+                EBrand brandName;
+
+                if (!Enum.TryParse((string)row["brand_name"], out brandName))
+                {
+                    Debug.Assert(false, "Wrong brand name");
+                }
+
+                products.Add(new ProductInfo(brandName, (string)row["type_name"], (string)row["product_name"], (int)row["price"], (string)row["url"], drawDate, date, (string)row["img_url"]));
             }
 
             return products;

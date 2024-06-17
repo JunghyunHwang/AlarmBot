@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using Org.BouncyCastle.Asn1.Crmf;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -15,6 +16,7 @@ namespace AlarmBot.AlarmBot
         private static PriorityQueue<ProductInfo, DateTime> productsPQ = new PriorityQueue<ProductInfo, DateTime>(Program.DATA_COUNT);
         private static List<ProductInfo> productsList = new List<ProductInfo>(Program.DATA_COUNT);
         private static ProductInfo[] productsArray = new ProductInfo[Program.DATA_COUNT];
+        private static Dictionary<string, ProductInfo> productsMap = new Dictionary<string, ProductInfo>(256);
 
         public static void SetData()
         {
@@ -27,6 +29,7 @@ namespace AlarmBot.AlarmBot
                 productsPQ.Enqueue(p, p.StartTime);
                 productsList.Add(p);
                 productsArray[i++] = p;
+                productsMap.Add(p.Url, p);
 
                 Debug.Assert(i <= Program.DATA_COUNT);
             }
@@ -78,6 +81,22 @@ namespace AlarmBot.AlarmBot
                 if (p.DrawDate == today)
                 {
                     result.Add(p);
+                }
+            }
+
+            return result;
+        }
+
+        public static List<ProductInfo> GetTodayDrawProductsFromDictionary()
+        {
+            List<ProductInfo> result = new List<ProductInfo>(Program.DATA_COUNT);
+            DateOnly today = DateOnly.FromDateTime(DateTime.Now);
+
+            foreach (KeyValuePair<string, ProductInfo> pair in productsMap)
+            {
+                if (pair.Value.DrawDate == today)
+                {
+                    result.Add(pair.Value);
                 }
             }
 

@@ -60,7 +60,6 @@ namespace AlarmBot.AlarmBot
             Console.WriteLine($"  Fastest: {minTicks} tick");
             Console.WriteLine($"  Average: {numTicks / (TEST_COUNT - 1)} tick, {numTicks * nanoPerTick / (TEST_COUNT - 1)} nanoseconds");
             Console.WriteLine();
-            Console.WriteLine();
         }
 
         public static void GetTodayDrawProductsFromDataTable()
@@ -98,7 +97,6 @@ namespace AlarmBot.AlarmBot
             Console.WriteLine($"  Slowest: {maxTicks} tick");
             Console.WriteLine($"  Fastest: {minTicks} tick");
             Console.WriteLine($"  Average: {numTicks / (TEST_COUNT - 1)} tick, {numTicks * nanoPerTick / (TEST_COUNT - 1)} nanoseconds");
-            Console.WriteLine();
             Console.WriteLine();
         }
 
@@ -140,7 +138,6 @@ namespace AlarmBot.AlarmBot
             Console.WriteLine($"  Fastest: {minTicks} tick");
             Console.WriteLine($"  Average: {numTicks / (TEST_COUNT - 1)} tick, {numTicks * nanoPerTick / (TEST_COUNT - 1)} nanoseconds");
             Console.WriteLine();
-            Console.WriteLine();
         }
 
         public static void GetTodayDrawProductsFromList()
@@ -180,7 +177,6 @@ namespace AlarmBot.AlarmBot
             Console.WriteLine($"  Slowest: {maxTicks} tick");
             Console.WriteLine($"  Fastest: {minTicks} tick");
             Console.WriteLine($"  Average: {numTicks / (TEST_COUNT - 1)} tick, {numTicks * nanoPerTick / (TEST_COUNT - 1)} nanoseconds");
-            Console.WriteLine();
             Console.WriteLine();
         }
 
@@ -222,6 +218,45 @@ namespace AlarmBot.AlarmBot
             Console.WriteLine($"  Fastest: {minTicks} tick");
             Console.WriteLine($"  Average: {numTicks / (TEST_COUNT - 1)} tick, {numTicks * nanoPerTick / (TEST_COUNT - 1)} nanoseconds");
             Console.WriteLine();
+        }
+
+        public static void GetTodayDrawProductsFromDictionary()
+        {
+            Debug.Assert(TestDataStructure.IsSetData, "Data not set");
+
+            long nanoPerTick = (1000L * 1000L * 1000L) / Stopwatch.Frequency;
+            long numTicks = 0;
+            long maxTicks = 0;
+            long minTicks = Int64.MaxValue;
+
+            for (int i = 0; i < TEST_COUNT; ++i)
+            {
+                Stopwatch timeGetFromQueue = Stopwatch.StartNew();
+
+                var products = TestDataStructure.GetTodayDrawProductsFromDictionary();
+
+                timeGetFromQueue.Stop();
+
+                if (i == 0)
+                {
+                    continue;
+                }
+
+                if (maxTicks < timeGetFromQueue.ElapsedTicks)
+                {
+                    maxTicks = timeGetFromQueue.ElapsedTicks;
+                }
+                if (minTicks > timeGetFromQueue.ElapsedTicks)
+                {
+                    minTicks = timeGetFromQueue.ElapsedTicks;
+                }
+                numTicks += timeGetFromQueue.ElapsedTicks;
+            }
+
+            Console.WriteLine("Get today draw products from Dictionary");
+            Console.WriteLine($"  Slowest: {maxTicks} tick");
+            Console.WriteLine($"  Fastest: {minTicks} tick");
+            Console.WriteLine($"  Average: {numTicks / (TEST_COUNT - 1)} tick, {numTicks * nanoPerTick / (TEST_COUNT - 1)} nanoseconds");
             Console.WriteLine();
         }
     }
