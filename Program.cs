@@ -10,7 +10,15 @@
             BrandManager.On();
             MessageManager.On();
 
-            Console.ReadLine();
+            bool bRun = true;
+
+            while (bRun)
+            {
+                if (Console.ReadLine() == "Stop")
+                {
+                    bRun = false;
+                }
+            }
         }
     }
 }

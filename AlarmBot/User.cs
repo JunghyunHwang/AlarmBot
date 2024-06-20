@@ -2,8 +2,8 @@
 {
 	public class User
 	{
-        private readonly Messenger mMessenger;
 		public string ChatID { get; private set; } // I think that we need to messenger info class
+        private readonly Messenger mMessenger;
 
         public User(Messenger messenger, string chatID)
         {

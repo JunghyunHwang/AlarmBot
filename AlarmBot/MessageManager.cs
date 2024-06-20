@@ -12,8 +12,6 @@ namespace AlarmBot
 
         private static readonly List<System.Timers.Timer> DRAW_TIMERS = new List<System.Timers.Timer>();
 
-        private static readonly List<Messenger> MESSENGERS = new List<Messenger>((int)EMessenger.Count);
-
         public static bool IsRunning { get; private set; } = false;
 
         public static bool On()
@@ -24,21 +22,18 @@ namespace AlarmBot
                 return false;
             }
 
-            MESSENGERS.Add(new Telegram());
-            Debug.Assert(MESSENGERS.Count == (int)EMessenger.Count);
-
             TODAY_DRAW_TIMER.Interval = Program.A_DAY_MILLISECONDS;
             TODAY_DRAW_TIMER.Elapsed += (sender, e) => setTodayDrawNotification();
             TODAY_DRAW_TIMER.AutoReset = true;
 
-            startCheckTodayDrawTimer();
+            igniteTodayDrawTimer();
 
             IsRunning = true;
             return true;
 
         }
 
-        private static void startCheckTodayDrawTimer()
+        private static void igniteTodayDrawTimer()
         {
             System.Timers.Timer ignitionTodayDraw = new System.Timers.Timer();
             DateTime todayDrawTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, HOURS_TO_CHECK_TODAY_DRAW, MINUTES_TO_CHECK_TODAY_DRAW, 0);

@@ -23,7 +23,7 @@
             DrawDate = drawDate;
             StartTime = startTime;
             ImgUrl = imgUrl;
-            users = new List<User>(DB.userCount);
+            users = new List<User>(Program.DEFAULT_LIST_COUNT);
         }
 
         public void SendMessage()

@@ -18,7 +18,7 @@ namespace AlarmBot
         {
             CONNECTION.Open();
             // Todo:
-            //  Get user count from DB and sed userCount
+            //  Get user count from DB and set userCount
             //  Add InsertUser() method
         }
 

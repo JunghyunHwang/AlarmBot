@@ -33,7 +33,7 @@ namespace AlarmBot
             NEW_PRODUCT_TIMER.Elapsed += async (sender, e) => await checkNewProducts();
             NEW_PRODUCT_TIMER.AutoReset = true;
 
-            startCheckNewProductsTimers();
+            igniteNewProductTimer();
             
             IsRunning = true;
             return true;
@@ -52,7 +52,7 @@ namespace AlarmBot
             return todayDrawProduct;
         }
 
-        private static void startCheckNewProductsTimers()
+        private static void igniteNewProductTimer()
         {
             System.Timers.Timer ignitionNewProduct = new System.Timers.Timer();
 
