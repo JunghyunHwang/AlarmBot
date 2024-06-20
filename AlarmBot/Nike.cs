@@ -54,14 +54,14 @@ namespace AlarmBot
                 urlBuilder.Clear();
                 urlBuilder.Append(BASE_URL).Append(list[i].Attributes[productLinkIndex].Value);
 
-                if (searchProducts.ContainsKey(urlBuilder.ToString()))
+                if (upcomingProducts.ContainsKey(urlBuilder.ToString()))
                 {
                     continue;
                 }
 
                 ProductInfo p = makeProductInfoByHTML(itemDoc, urlBuilder.ToString());
+                upcomingProducts.Add(p.Url, p);
 
-                addProduct(p);
                 newProducts.Add(p);
             }
 

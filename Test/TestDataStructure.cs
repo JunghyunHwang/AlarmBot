@@ -1,15 +1,7 @@
-﻿using MySql.Data.MySqlClient;
-using Org.BouncyCastle.Asn1.Crmf;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
+﻿using AlarmBot.Test;
 using System.Diagnostics;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace AlarmBot.AlarmBot
+namespace AlarmBot
 {
     public static class TestDataStructure
     {
@@ -17,9 +9,9 @@ namespace AlarmBot.AlarmBot
 
         private static readonly List<ProductInfo> allData;
 
-        private static PriorityQueue<ProductInfo, DateTime> productsPQ = new PriorityQueue<ProductInfo, DateTime>(Program.DATA_COUNT);
-        private static List<ProductInfo> productsList = new List<ProductInfo>(Program.DATA_COUNT);
-        private static ProductInfo[] productsArray = new ProductInfo[Program.DATA_COUNT];
+        private static PriorityQueue<ProductInfo, DateTime> productsPQ = new PriorityQueue<ProductInfo, DateTime>(TestDataGenerator.GeneratedDataCount);
+        private static List<ProductInfo> productsList = new List<ProductInfo>(TestDataGenerator.GeneratedDataCount);
+        private static ProductInfo[] productsArray = new ProductInfo[TestDataGenerator.GeneratedDataCount];
         private static Dictionary<string, ProductInfo> productsMap = new Dictionary<string, ProductInfo>(256);
         public static ref readonly List<ProductInfo> refAllData => ref allData;
         static TestDataStructure()
@@ -43,7 +35,7 @@ namespace AlarmBot.AlarmBot
                 productsArray[i++] = p;
                 productsMap.Add(p.Url, p);
 
-                Debug.Assert(i <= Program.DATA_COUNT);
+                Debug.Assert(i <= TestDataGenerator.GeneratedDataCount);
             }
 
             IsSetData = true;
@@ -56,7 +48,7 @@ namespace AlarmBot.AlarmBot
 
         public static List<ProductInfo> GetTodayDrawProductsFromPQ()
         {
-            List<ProductInfo> result = new List<ProductInfo>(Program.DATA_COUNT);
+            List<ProductInfo> result = new List<ProductInfo>(TestDataGenerator.GeneratedDataCount);
             DateOnly today = DateOnly.FromDateTime(DateTime.Now);
 
             while (productsPQ.Peek().DrawDate == today)
@@ -74,7 +66,7 @@ namespace AlarmBot.AlarmBot
 
         public static List<ProductInfo> GetTodayDrawProductsFromList()
         {
-            List<ProductInfo> result = new List<ProductInfo>(Program.DATA_COUNT);
+            List<ProductInfo> result = new List<ProductInfo>(TestDataGenerator.GeneratedDataCount);
             DateOnly today = DateOnly.FromDateTime(DateTime.Now);
 
             foreach (ProductInfo p in productsList)
@@ -90,7 +82,7 @@ namespace AlarmBot.AlarmBot
 
         public static List<ProductInfo> GetTodayDrawProductsFromArray()
         {
-            List<ProductInfo> result = new List<ProductInfo>(Program.DATA_COUNT);
+            List<ProductInfo> result = new List<ProductInfo>(TestDataGenerator.GeneratedDataCount);
             DateOnly today = DateOnly.FromDateTime(DateTime.Now);
 
             foreach (ProductInfo p in productsArray)
@@ -106,7 +98,7 @@ namespace AlarmBot.AlarmBot
 
         public static List<ProductInfo> GetTodayDrawProductsFromDictionary()
         {
-            List<ProductInfo> result = new List<ProductInfo>(Program.DATA_COUNT);
+            List<ProductInfo> result = new List<ProductInfo>(TestDataGenerator.GeneratedDataCount);
             DateOnly today = DateOnly.FromDateTime(DateTime.Now);
 
             foreach (KeyValuePair<string, ProductInfo> pair in productsMap)

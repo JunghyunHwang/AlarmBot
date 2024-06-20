@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace AlarmBot
+﻿namespace AlarmBot
 {
     public sealed class ProductInfo
     {
@@ -16,6 +11,8 @@ namespace AlarmBot
         public readonly DateTime StartTime;
         public readonly string ImgUrl;
 
+        private readonly List<User> users;
+
         public ProductInfo(EBrand brandName, string typeName, string productName, int price, string url, DateOnly drawDate, DateTime startTime, string imgUrl)
         {
             BrandName = brandName;
@@ -26,6 +23,15 @@ namespace AlarmBot
             DrawDate = drawDate;
             StartTime = startTime;
             ImgUrl = imgUrl;
+            users = new List<User>(DB.userCount);
+        }
+
+        public void SendMessage()
+        {
+            foreach (User u in users)
+            {
+                u.SendMessage(this);
+            }
         }
 
         public override bool Equals(object? obj)

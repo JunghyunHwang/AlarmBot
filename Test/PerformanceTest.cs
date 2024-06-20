@@ -1,6 +1,7 @@
-﻿using System.Diagnostics;
+﻿using AlarmBot.Test;
+using System.Diagnostics;
 
-namespace AlarmBot.AlarmBot
+namespace AlarmBot
 {
     internal static class PerformanceTest
     {
@@ -14,7 +15,7 @@ namespace AlarmBot.AlarmBot
 #else
             Console.WriteLine("====   Release build   ====");
 #endif
-            Console.WriteLine($"====  Data count: {Program.DATA_COUNT}  ====");
+            Console.WriteLine($"====  Data count: {TestDataGenerator.GeneratedDataCount}  ====");
             Console.WriteLine($"==== Test count: {TEST_COUNT} ====");
 
             TestDataStructure.SetData();
@@ -33,7 +34,7 @@ namespace AlarmBot.AlarmBot
 #else
             Console.WriteLine("====   Release build   ====");
 #endif
-            Console.WriteLine($"====  Data count: {Program.DATA_COUNT}  ====");
+            Console.WriteLine($"====  Data count: {TestDataGenerator.GeneratedDataCount}  ====");
             Console.WriteLine($"==== Test count: {TEST_COUNT} ====");
 
             TestDataStructure.SetData();

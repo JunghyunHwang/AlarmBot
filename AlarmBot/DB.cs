@@ -12,15 +12,20 @@ namespace AlarmBot
         private static readonly MySqlConnection CONNECTION = new MySqlConnection(CONNECTION_STRING);
         private static readonly DataSet DATA_SET = new DataSet();
 
+        public static int userCount { get; private set; } = 0;
+
         static DB()
         {
             CONNECTION.Open();
+            // Todo:
+            //  Get user count from DB and sed userCount
+            //  Add InsertUser() method
         }
 
         public static List<ProductInfo> GetAllProducts()
         {
             DATA_SET.Clear();
-            List<ProductInfo> products = new List<ProductInfo>(Program.DATA_COUNT);
+            List<ProductInfo> products = new List<ProductInfo>(Program.DEFAULT_LIST_COUNT);
             string query = $"SELECT * FROM products";
             MySqlDataAdapter adapter = new MySqlDataAdapter(query, CONNECTION);
 
@@ -43,7 +48,7 @@ namespace AlarmBot
         public static List<ProductInfo> GetProductsByBrandName(EBrand brandName)
         {
             DATA_SET.Clear();
-            List<ProductInfo> products = new List<ProductInfo>(Program.DATA_COUNT);
+            List<ProductInfo> products = new List<ProductInfo>(Program.DEFAULT_LIST_COUNT);
             string query = $"SELECT * FROM products WHERE brand_name={(uint)brandName}";
             MySqlDataAdapter adapter = new MySqlDataAdapter(query, CONNECTION);
 
@@ -62,11 +67,11 @@ namespace AlarmBot
 
             return products;
         }
-
+        
         public static List<ProductInfo> GetTodayDrawProducts()
         {
             DATA_SET.Clear();
-            List<ProductInfo> products = new List<ProductInfo>(Program.DATA_COUNT);
+            List<ProductInfo> products = new List<ProductInfo>(Program.DEFAULT_LIST_COUNT);
             string query = $"SELECT * FROM products WHERE draw_date='{DateTime.Now.ToString("yyyy-MM-dd")}'";
             MySqlDataAdapter adapter = new MySqlDataAdapter(query, CONNECTION);
 
@@ -84,48 +89,6 @@ namespace AlarmBot
             }
 
             return products;
-        }
-
-        public static List<ProductInfo> GetProductsByDate(DateTime date)
-        {
-            List<ProductInfo> products = new List<ProductInfo>(Program.DATA_COUNT);
-            string query = $"SELECT * FROM products WHERE draw_date='{date.ToString("yyyy-MM-dd")}'";
-            MySqlDataAdapter adapter = new MySqlDataAdapter(query, CONNECTION);
-
-            adapter.Fill(DATA_SET, "alarmbot");
-
-            DataTable table = DATA_SET.Tables[0];
-
-            for (int i = 0; i < table.Rows.Count; ++i)
-            {
-                DataRow row = table.Rows[i];
-                DateOnly drawDate = DateOnly.FromDateTime(date);
-
-                products.Add(new ProductInfo((EBrand)row["brand_name"], (string)row["type_name"], (string)row["product_name"], (int)row["price"], (string)row["url"], drawDate, date, (string)row["img_url"]));
-            }
-
-            return products;
-        }
-
-        public static List<User> GetUsersByMessenger(EMessenger messenger)
-        {
-            List<User> users = new List<User>(128);
-            DataSet dataSet = new DataSet();
-            string query = $"SELECT chat_id FROM users WHERE messenger='{messenger}'";
-            MySqlDataAdapter adapter = new MySqlDataAdapter(query, CONNECTION);
-
-            adapter.Fill(dataSet, "alarmbot");
-
-            DataTable table = dataSet.Tables[0];
-
-            for (int i = 0; i < table.Rows.Count; ++i)
-            {
-                DataRow row = table.Rows[i];
-
-                users.Add(new User(messenger, (string)row["chat_id"]));
-            }
-
-            return users;
         }
 
         public static void InsertProducts(List<ProductInfo> products)

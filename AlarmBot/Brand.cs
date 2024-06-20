@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using HtmlAgilityPack;
-using Org.BouncyCastle.Asn1.Cmp;
+﻿using HtmlAgilityPack;
 
 namespace AlarmBot
 {
@@ -9,8 +6,7 @@ namespace AlarmBot
     {
         public readonly EBrand BrandName;
         protected readonly string URL;
-        protected PriorityQueue<ProductInfo, DateTime> products = new PriorityQueue<ProductInfo, DateTime>(256);
-        protected Dictionary<string, ProductInfo> searchProducts = new Dictionary<string, ProductInfo>(256);
+        protected Dictionary<string, ProductInfo> upcomingProducts = new Dictionary<string, ProductInfo>(256);
 
         public Brand(EBrand brandName, string url)
         {
@@ -23,17 +19,14 @@ namespace AlarmBot
         public List<ProductInfo> GetTodayDrawProducts()
         {
             List<ProductInfo> result = new List<ProductInfo>(16);
-            DateOnly now = DateOnly.FromDateTime(DateTime.Now);
+            DateOnly today = DateOnly.FromDateTime(DateTime.Now);
 
-            while (products.Peek().DrawDate == now)
+            foreach (KeyValuePair<string, ProductInfo> pair in upcomingProducts)
             {
-                result.Add(products.Dequeue());
-            }
-
-            // Is it really necessary to restore? => how about GetTodayDrawProductsAndDelete()?
-            foreach (ProductInfo p in result)
-            {
-                products.Enqueue(p, p.StartTime);
+                if (pair.Value.DrawDate == today)
+                {
+                    result.Add(pair.Value);
+                }
             }
 
             return result;
@@ -41,29 +34,25 @@ namespace AlarmBot
 
         public void RemoveTodayDrawProducts()
         {
-            DateOnly now = DateOnly.FromDateTime(DateTime.Now);
+            DateOnly today = DateOnly.FromDateTime(DateTime.Now);
 
-            while (products.Peek().DrawDate <= now)
+            foreach (ProductInfo p in upcomingProducts.Values)
             {
-                ProductInfo p = products.Dequeue();
-                searchProducts.Remove(p.Url);
+                if (p.DrawDate == today)
+                {
+                    upcomingProducts.Remove(p.Url);
+                }
             }
         }
 
-        public void AddProducts(List<ProductInfo> lp)
+        public void AddProducts(List<ProductInfo> products)
         {
-            foreach (ProductInfo p in lp)
+            foreach (ProductInfo p in products)
             {
-                addProduct(p);
+                upcomingProducts.Add(p.Url, p);
             }
         }
 
         protected abstract ProductInfo makeProductInfoByHTML(HtmlDocument itemDoc, string url);
-
-        protected void addProduct(ProductInfo p)
-        {
-            products.Enqueue(p, p.StartTime);
-            searchProducts.Add(p.Url, p);
-        }
     }
 }

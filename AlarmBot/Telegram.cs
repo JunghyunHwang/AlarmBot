@@ -1,62 +1,32 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text;
-using System.Net;
-using System.Timers;
 using System.Configuration;
 
 namespace AlarmBot
 {
 	public sealed class Telegram : Messenger
 	{
+#pragma warning disable CS8601 // Possible null reference assignment.
         private static readonly string BOT_TOKEN = ConfigurationManager.AppSettings["TelegramBotToken"];
+#pragma warning restore CS8601 // Possible null reference assignment.
         private static readonly string API_URL = $"https://api.telegram.org/bot{BOT_TOKEN}";
+
         private readonly HttpClient mClient = new HttpClient();
+        private readonly StringBuilder mUriBuilder = new StringBuilder(256);
 
-        private readonly List<System.Timers.Timer> drawNotificationTimers = new List<System.Timers.Timer>();
-
-        public override void SetNotification(List<ProductInfo> drawProducts)
+        public override void SendMessage(ProductInfo drawProduct, User user)
         {
-            Debug.Assert(drawNotificationTimers.Count == 0);
+            mUriBuilder.Clear();
 
-            foreach (ProductInfo product in drawProducts)
-            {
-                Debug.Assert(DateTime.Now < product.StartTime);
-
-                System.Timers.Timer drawTimer = new System.Timers.Timer();
-                double remainingTime = (product.StartTime - DateTime.Now).TotalMilliseconds;
-
-                drawTimer.Interval = remainingTime;
-                drawTimer.Elapsed += (sender, e) => sendMessageToAllUsers(drawTimer, product);
-                drawTimer.AutoReset = false;
-                drawTimer.Start();
-
-                drawNotificationTimers.Add(drawTimer);
-            }
-        }
-
-        protected override async void sendMessageToAllUsers(System.Timers.Timer timer, ProductInfo product)
-        {
-            StringBuilder uriBuilder = new StringBuilder(256);
-            List<User> users = DB.GetUsersByMessenger(EMessenger.Telegram);
-
-            foreach(var u in users)
-            {
-                uriBuilder.Clear();
-
-                uriBuilder.Append(API_URL)
+            mUriBuilder.Append(API_URL)
                     .Append("/sendPhoto")
-                    .Append($"?chat_id={u.ChatID}")
-                    .Append($"&photo={product.ImgUrl}")
+                    .Append($"?chat_id={user.ChatID}")
+                    .Append($"&photo={drawProduct.ImgUrl}")
                     .Append("&reply_markup={\"inline_keyboard\":[[{ \"text\": \"지금 응모하기\", \"url\":")
-                    .Append($"\"{product.Url}\"")
+                    .Append($"\"{drawProduct.Url}\"")
                     .Append("}]]}");
 
-                await mClient.GetAsync(uriBuilder.ToString());
-            }
-
-            bool bHasTimer = drawNotificationTimers.Remove(timer);
-            Debug.Assert(bHasTimer);
+            mClient.GetAsync(mUriBuilder.ToString());
         }
     }
 }

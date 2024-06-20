@@ -1,17 +1,19 @@
-﻿using System;
-
-namespace AlarmBot
+﻿namespace AlarmBot
 {
 	public class User
 	{
-		public EMessenger Messenger { get; private set; }
-		public string ChatID { get; private set; }
+        private readonly Messenger mMessenger;
+		public string ChatID { get; private set; } // I think that we need to messenger info class
 
-        public User(EMessenger messenger, string chatID)
+        public User(Messenger messenger, string chatID)
         {
-            Messenger = messenger;
+            mMessenger = messenger;
             ChatID = chatID;
+        }
+
+        public void SendMessage(ProductInfo p)
+        {
+            mMessenger.SendMessage(p, this);
         }
     }
 }
-
