@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,18 +14,29 @@ namespace AlarmBot.AlarmBot
     public static class TestDataStructure
     {
         public static bool IsSetData {  get; private set; } = false;
+
+        private static readonly List<ProductInfo> allData;
+
         private static PriorityQueue<ProductInfo, DateTime> productsPQ = new PriorityQueue<ProductInfo, DateTime>(Program.DATA_COUNT);
         private static List<ProductInfo> productsList = new List<ProductInfo>(Program.DATA_COUNT);
         private static ProductInfo[] productsArray = new ProductInfo[Program.DATA_COUNT];
         private static Dictionary<string, ProductInfo> productsMap = new Dictionary<string, ProductInfo>(256);
+        public static ref readonly List<ProductInfo> refAllData => ref allData;
+        static TestDataStructure()
+        {
+            allData = DB.GetAllProducts();
+        }
 
         public static void SetData()
         {
-            List<ProductInfo> list = DB.GetProductsByBrandName(EBrand.Nike);
+            if (IsSetData)
+            {
+                return;
+            }
 
             int i = 0;
 
-            foreach (var p in list)
+            foreach (ProductInfo p in allData)
             {
                 productsPQ.Enqueue(p, p.StartTime);
                 productsList.Add(p);
@@ -35,6 +47,11 @@ namespace AlarmBot.AlarmBot
             }
 
             IsSetData = true;
+        }
+
+        public static List<ProductInfo> GetAllData()
+        {
+            return refAllData;
         }
 
         public static List<ProductInfo> GetTodayDrawProductsFromPQ()
@@ -101,6 +118,61 @@ namespace AlarmBot.AlarmBot
             }
 
             return result;
+        }
+        
+        public static bool HasProductsByPQ(ProductInfo product)
+        {
+            List<ProductInfo> temp = new List<ProductInfo>(productsPQ.Count);
+            bool result = false;
+
+            while (productsPQ.Count > 0)
+            {
+                if (productsPQ.Peek().Equals(product))
+                {
+                    result = true;
+                    break;
+                }
+
+                temp.Add(productsPQ.Dequeue());
+            }
+
+            foreach (ProductInfo p in temp)
+            {
+                productsPQ.Enqueue(p, p.StartTime);
+            }
+
+            return result;
+        }
+
+        public static bool HasProductsByList(ProductInfo product)
+        {
+            foreach (ProductInfo p in productsList)
+            {
+                if (p.Equals(product))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool HasProductsByArray(ProductInfo product)
+        {
+            foreach (ProductInfo p in productsArray)
+            {
+                if (p.Equals(product))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool HasProductsByDictionary(ProductInfo product)
+        {
+            return productsMap.ContainsKey(product.Url);
         }
     }
 }

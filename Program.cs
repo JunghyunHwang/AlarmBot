@@ -1,40 +1,26 @@
 ﻿using AlarmBot.AlarmBot;
-using MySql.Data.MySqlClient;
-using Org.BouncyCastle.Asn1.Crmf;
-using Org.BouncyCastle.Asn1.Sec;
-using System;
-using System.Configuration;
-using System.Data;
-using System.Diagnostics;
-using System.Net;
-using System.Text.Json;
-using ZstdSharp.Unsafe;
 
 namespace AlarmBot
 {
-    /*
-     * TODO
-     * Add IDisposable: DB.cs
-     * Remove product: Bot.cs
-     * Add method that find today draw products: Bot.cs
-     * Fix products Dictionary to PriorityQueue: Brands.cs
-     */
     internal class Program
     {
         public static readonly int DATA_COUNT = 256;
+        public static readonly float todayDrawProductsRatio = 0.2f;
+
         private static readonly Random random = new Random();
 
         static void Main(string[] args)
         {
-            InsertData();
-            //PerformanceTest.StartTest();
+            //InsertData();
+
+            PerformanceTest.StartTestGetTodayDrawProducts();
         }
 
         private static void InsertData()
         {
             ProductInfo[] products = new ProductInfo[DATA_COUNT];
 
-            int TODAY_DATA_COUNT = (int)(DATA_COUNT * 0.05 + 0.5);
+            int TODAY_DATA_COUNT = (int)(DATA_COUNT * todayDrawProductsRatio + 0.5);
             for (int i = 0; i < TODAY_DATA_COUNT; ++i)
             {
                 int randomIndex = random.Next(DATA_COUNT);
@@ -46,13 +32,13 @@ namespace AlarmBot
 
                 products[randomIndex] = new ProductInfo(
                     EBrand.Nike,
-                    $"test_type{i}",
-                    $"test_name{i}",
+                    $"test_type{randomIndex}",
+                    $"test_name{randomIndex}",
                     random.Next(10000, 1000001),
-                    $"url{i}",
+                    $"url{randomIndex}",
                     DateOnly.FromDateTime(DateTime.Now),
                     DateTime.Now,
-                    $"img_url{i}"
+                    $"img_url{randomIndex}"
                 );
             }
 
@@ -63,8 +49,7 @@ namespace AlarmBot
                     continue;
                 }
 
-                int randomAddDateNum = random.Next(1, 16);
-                DateTime date = DateTime.Now.AddDays(randomAddDateNum);
+                DateTime date = DateTime.Now.AddDays(random.Next(1, 16));
                 products[i] = new ProductInfo(
                     EBrand.Nike,
                     $"test_type{i}",

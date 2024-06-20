@@ -19,6 +19,8 @@ namespace AlarmBot
 
         public static void SetNotification(List<ProductInfo> todayDrawProduct)
         {
+            Debug.Assert(IsSetMessengers);
+
             foreach (Messenger m in MESSENGERS.Values)
             {
                 m.SetNotification(todayDrawProduct);

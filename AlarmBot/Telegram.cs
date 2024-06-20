@@ -9,9 +9,9 @@ namespace AlarmBot
 {
 	public sealed class Telegram : Messenger
 	{
-        static public readonly string BOT_TOKEN = ConfigurationManager.AppSettings["TelegramBotToken"];
-        static private readonly string API_URL = $"https://api.telegram.org/bot{BOT_TOKEN}";
-        static private readonly HttpClient client = new HttpClient();
+        private static readonly string BOT_TOKEN = ConfigurationManager.AppSettings["TelegramBotToken"];
+        private static readonly string API_URL = $"https://api.telegram.org/bot{BOT_TOKEN}";
+        private readonly HttpClient mClient = new HttpClient();
 
         private readonly List<System.Timers.Timer> drawNotificationTimers = new List<System.Timers.Timer>();
 
@@ -21,7 +21,7 @@ namespace AlarmBot
 
             foreach (ProductInfo product in drawProducts)
             {
-                Debug.Assert(product.StartTime > DateTime.Now);
+                Debug.Assert(DateTime.Now < product.StartTime);
 
                 System.Timers.Timer drawTimer = new System.Timers.Timer();
                 double remainingTime = (product.StartTime - DateTime.Now).TotalMilliseconds;
@@ -52,7 +52,7 @@ namespace AlarmBot
                     .Append($"\"{product.Url}\"")
                     .Append("}]]}");
 
-                await client.GetAsync(uriBuilder.ToString());
+                await mClient.GetAsync(uriBuilder.ToString());
             }
 
             bool bHasTimer = drawNotificationTimers.Remove(timer);
