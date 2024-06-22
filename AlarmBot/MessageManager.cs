@@ -30,7 +30,6 @@ namespace AlarmBot
 
             IsRunning = true;
             return true;
-
         }
 
         private static void igniteTodayDrawTimer()
@@ -52,15 +51,15 @@ namespace AlarmBot
 
         private static void setTodayDrawNotification()
         {
+            Debug.Assert(DRAW_TIMERS.Count == 0, "Has an Unexpired timers");
             List<ProductInfo> todayDrawProduct = BrandManager.GetTodayDrawProducts();
 
             foreach (ProductInfo p in todayDrawProduct)
             {
-                Debug.Assert(DateTime.Now < p.StartTime);
+                Debug.Assert(DateTime.Now < p.StartTime, "Out of time product...");
                 System.Timers.Timer drawTimer = new System.Timers.Timer();
-                double remainingTime = (p.StartTime - DateTime.Now).TotalMilliseconds;
 
-                drawTimer.Interval = remainingTime;
+                drawTimer.Interval = (p.StartTime - DateTime.Now).TotalMilliseconds;
                 drawTimer.Elapsed += (sender, e) => sendMessage(drawTimer, p);
                 drawTimer.AutoReset = false;
                 drawTimer.Start();
@@ -72,7 +71,9 @@ namespace AlarmBot
         private static void sendMessage(System.Timers.Timer timer, ProductInfo product)
         {
             product.SendMessage();
+
             DRAW_TIMERS.Remove(timer);
+            timer.Dispose();
         }
     }
 }
