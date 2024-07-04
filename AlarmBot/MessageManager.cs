@@ -9,8 +9,7 @@ namespace AlarmBot
         private static readonly int HOURS_TO_CHECK_TODAY_DRAW = 07;
         private static readonly int MINUTES_TO_CHECK_TODAY_DRAW = 00;
         private static readonly System.Timers.Timer TODAY_DRAW_TIMER = new System.Timers.Timer();
-
-        private static readonly List<System.Timers.Timer> DRAW_TIMERS = new List<System.Timers.Timer>();
+        private static readonly Dictionary<DateTime, List<ProductInfo>> GROUP_BY_START_TIME = new Dictionary<DateTime, List<ProductInfo>>(16);
 
         public static bool IsRunning { get; private set; } = false;
 
@@ -51,29 +50,36 @@ namespace AlarmBot
 
         private static void setTodayDrawNotification()
         {
-            Debug.Assert(DRAW_TIMERS.Count == 0, "Has an Unexpired timers");
-            List<ProductInfo> todayDrawProduct = BrandManager.GetTodayDrawProducts();
+            Debug.Assert(GROUP_BY_START_TIME.Count == 0, "Has an Unexpired timers");
 
+            List<ProductInfo> todayDrawProduct = BrandManager.GetTodayDrawProducts();
+            
             foreach (ProductInfo p in todayDrawProduct)
             {
-                Debug.Assert(DateTime.Now < p.StartTime, "Out of time product...");
-                System.Timers.Timer drawTimer = new System.Timers.Timer();
+                if (!GROUP_BY_START_TIME.ContainsKey(p.StartTime))
+                {
+                    GROUP_BY_START_TIME.Add(p.StartTime, new List<ProductInfo>(todayDrawProduct.Count));
 
-                drawTimer.Interval = (p.StartTime - DateTime.Now).TotalMilliseconds;
-                drawTimer.Elapsed += (sender, e) => sendMessage(drawTimer, p);
-                drawTimer.AutoReset = false;
-                drawTimer.Start();
+                    System.Timers.Timer drawTimer = new System.Timers.Timer();
+                    drawTimer.Interval = (p.StartTime - DateTime.Now).TotalMilliseconds;
+                    drawTimer.Elapsed += (sender, e) => sendMessage(drawTimer, p.StartTime);
+                    drawTimer.AutoReset = false;
+                    drawTimer.Start();
+                }
 
-                DRAW_TIMERS.Add(drawTimer);
+                GROUP_BY_START_TIME[p.StartTime].Add(p);
             }
         }
 
-        private static void sendMessage(System.Timers.Timer timer, ProductInfo product)
+        private static void sendMessage(System.Timers.Timer drawTimer, DateTime startTime)
         {
-            product.SendMessage();
-
-            DRAW_TIMERS.Remove(timer);
-            timer.Dispose();
+            foreach (ProductInfo p in GROUP_BY_START_TIME[startTime])
+            {
+                p.SendMessage();
+            }
+            
+            GROUP_BY_START_TIME.Remove(startTime);
+            drawTimer.Dispose();
         }
     }
 }

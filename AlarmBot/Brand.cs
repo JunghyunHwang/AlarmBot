@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using System.Diagnostics;
 
 namespace AlarmBot
 {
@@ -21,11 +22,12 @@ namespace AlarmBot
             List<ProductInfo> result = new List<ProductInfo>(16);
             DateOnly today = DateOnly.FromDateTime(DateTime.Now);
 
-            foreach (KeyValuePair<string, ProductInfo> pair in upcomingProducts)
+            foreach (ProductInfo p in upcomingProducts.Values)
             {
-                if (pair.Value.DrawDate == today)
+                Debug.Assert(p.DrawDate >= today, "Out of time product...");
+                if (p.DrawDate == today)
                 {
-                    result.Add(pair.Value);
+                    result.Add(p);
                 }
             }
 
@@ -49,6 +51,7 @@ namespace AlarmBot
         {
             foreach (ProductInfo p in products)
             {
+                Debug.Assert(!upcomingProducts.ContainsKey(p.Url), "Has Same products");
                 upcomingProducts.Add(p.Url, p);
             }
         }
